@@ -123,7 +123,10 @@ var SearchView = {
     this.props.model.set('value', "");
     this.props.model.set('searchTriggered', false);
     this.props.model.clear();
-    $("#snabbsokRensa").click();
+
+    if(typeof $("#snabbsokRensa") !== "undefined"){
+      $("#snabbsokRensa").click();
+    }
 
     if(document.getElementById("alertSearchbar") != null) {
       document.getElementById("alertSearchbar").remove();
