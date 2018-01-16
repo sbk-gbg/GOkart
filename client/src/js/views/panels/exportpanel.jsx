@@ -90,8 +90,8 @@ var ExportTiffSettings = React.createClass({
 });
 
 var ExportPdfSettings = React.createClass({
-  resolutions: [72, 96, 150, 200, 300],
-  paperFormats: ["A2", "A3", "A4"],
+  resolutions: [72, 96, 150, 200],
+  paperFormats: ["A3", "A4"],
 
   getInitialState: function() {
     return {
@@ -324,7 +324,11 @@ var ExportPdfSettings = React.createClass({
         return s !== 300 
           ? <option key={i} value={s}>{s}</option>
           : <option key={i} value={s} disabled>{s}</option>;
-        } else {
+      } else if(this.state.selectFormat === 'A3'){
+        return s !== 200
+          ? <option key={i} value={s}>{s}</option>
+          : <option key={i} value={s} disabled>{s}</option>;
+      }else {
           return <option key={i} value={s}>{s}</option>;
         }
       });
@@ -333,7 +337,11 @@ var ExportPdfSettings = React.createClass({
         return s !== 'A2'
           ? <option key={i} value={s}>{s}</option>
           : <option key={i} value={s} disabled>{s}</option>;
-        } else {
+      } else if(this.state.selectResolution === '200'){
+        return s !== 'A3'
+          ? <option key={i} value={s}>{s}</option>
+          : <option key={i} value={s} disabled>{s}</option>;
+      }else {
           return <option key={i} value={s}>{s}</option>;
         }
     });

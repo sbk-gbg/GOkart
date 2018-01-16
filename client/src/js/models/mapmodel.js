@@ -87,7 +87,7 @@ var MapModel = {
       pil: false,
       controls: [
         new ol.control.Zoom({ zoomInTipLabel: 'Zooma in', zoomOutTipLabel: 'Zooma ut' }),
-        new ol.control.Attribution({ collapsible: false }),
+        //new ol.control.Attribution({ collapsible: false }),
         new ol.control.Rotate({tipLabel: 'Återställ rotation'}),
         //new app.PositioningControl()
       ],

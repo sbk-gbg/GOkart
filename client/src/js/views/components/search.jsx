@@ -441,6 +441,7 @@ var SearchView = {
           </div>
           <div className="clearfix">
             <span className="info-text clearfix">Inled sökningen med * för att söka på delar av en text.</span>
+            <span className="info-text clearfix">Obs: Max 1000 sökträffar kan visas.</span>
           </div>
         </div>
         <button onClick={search_on_click} type="submit" className="btn btn-main">Sök</button>&nbsp;

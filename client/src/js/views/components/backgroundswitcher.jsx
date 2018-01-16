@@ -199,10 +199,18 @@ var BackgroundSwitcherView = {
             </span>
           
             <div className={infoExpanded === infoIndex ? "dropdown" : "hidden"}>
-              <p className="info-title">{layer.get('infoTitle')}</p>
-              <p className="info-text">{layer.get('infoText')}</p>
-              <a className="info-text" href={layer.get('infoUrl')} target="_blank">{layer.get('infoUrl')}</a><br/>
-              <i className="info-text">{layer.get('infoOwner') ? "Ägare: " + layer.get('infoOwner') : ""}</i>
+              <p className="info-title" dangerouslySetInnerHTML={{__html: layer.get('infoTitle')}}></p>
+              <p className="info-text" dangerouslySetInnerHTML={{__html: layer.get('infoText')}}></p>
+              <p className="info-text" dangerouslySetInnerHTML={{__html: layer.get('infoUrl')}}></p>
+              <p className="info-text" dangerouslySetInnerHTML={{__html: layer.get('infoOwner')}}></p>
+
+              {/* Göteborg(Original)
+              *              <p className="info-title">{layer.get('infoTitle')}</p>
+              *              <p className="info-text">{layer.get('infoText')}</p>
+              *              <a className="info-text" href={layer.get('infoUrl')} target="_blank">{layer.get('infoUrl')}</a><br/>
+              *              <i className="info-text">{layer.get('infoOwner') ? "Ägare: " + layer.get('infoOwner') : ""}</i>
+              * */}
+
             </div>
           </li>
         );
