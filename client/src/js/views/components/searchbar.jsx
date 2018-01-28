@@ -85,7 +85,13 @@ var SearchBarView = {
       , result
       , typeName;
 
-    // get s and v
+	    /* This function will parse the variables s and v from the URL,
+	    If they are present, and execute a search if they are specified.
+	    s is the type of the object to search for. (s = adress, fastighet...)
+	    v is the value to search for. (v = stor, storatorget...)
+	     */
+
+    // get s and v from URL
     var paramGet = function (name) {
       var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
       return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
@@ -94,6 +100,7 @@ var SearchBarView = {
     var s = paramGet('s');
     var v = paramGet('v');
 
+    // will add a filter if s is not null with the specified type. if s is null a wildcard filter is added.
     if(s == null){
       this.props.model.set('filter', '*');
     }else{

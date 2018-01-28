@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using log4net;
 
 namespace MapService.Components.MapExport
 {
@@ -21,6 +22,7 @@ namespace MapService.Components.MapExport
 
     public class MapImageCreator
     {
+        static ILog _log = LogManager.GetLogger(typeof(MapImageCreator));
         /// <summary>
         /// Create a worldfile for georeferencing.
         /// </summary>
@@ -76,32 +78,49 @@ namespace MapService.Components.MapExport
         /// <returns>Image</returns>
         public static Image GetImage(MapExportItem exportItem)
         {
+            _log.Debug("GetImage");
             MapExporter mapExporter = new MapExporter(exportItem);
 
+            _log.Debug("GetImage2");
             mapExporter.AddWMTSLayers(exportItem.wmtsLayers);
+            _log.Debug("GetImage3");
             mapExporter.AddWMSLayers(exportItem.wmsLayers);
+            _log.Debug("GetImage4");
             mapExporter.AddArcGISLayers(exportItem.arcgisLayers);
-            mapExporter.AddVectorLayers(exportItem.vectorLayers);            
+            _log.Debug("GetImage5");
+            mapExporter.AddVectorLayers(exportItem.vectorLayers);
+            _log.Debug("GetImage6");
 
             double left = exportItem.bbox[0];
             double right = exportItem.bbox[1];
             double bottom = exportItem.bbox[2];
             double top = exportItem.bbox[3];
 
+            _log.Debug("GetImage7");
             Envelope envelope = new Envelope(left, right, bottom, top);
+            _log.Debug("GetImage8");
             mapExporter.map.ZoomToBox(envelope);
-                                    
-            Image i = mapExporter.map.GetMap(exportItem.resolution);            
+            _log.Debug("GetImage9");
+
+            Image i = mapExporter.map.GetMap(exportItem.resolution);
+            _log.Debug("GetImage10");
 
             Bitmap src = new Bitmap(i);
+            _log.Debug("GetImage11");
             src.SetResolution(exportItem.resolution, exportItem.resolution);
+            _log.Debug("GetImage12");
 
             Bitmap target = new Bitmap(src.Size.Width, src.Size.Height);
+            _log.Debug("GetImage13");
             target.SetResolution(exportItem.resolution, exportItem.resolution);
+            _log.Debug("GetImage14");
 
             Graphics g = Graphics.FromImage(target);
+            _log.Debug("GetImage15");
             g.FillRectangle(new SolidBrush(Color.White), 0, 0, target.Width, target.Height);
+            _log.Debug("GetImage16");
             g.DrawImage(src, 0, 0);
+            _log.Debug("GetImage17");
             return target;
         }        
 

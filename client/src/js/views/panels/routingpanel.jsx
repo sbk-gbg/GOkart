@@ -48,17 +48,9 @@ var RoutingPanelView = {
   },
 
   activateStartMode: function(){
-    if (isMobile) {
-      this.props.navigationPanel.minimize();
-    }
-
     this.props.model.activateStartMode(); // working
   },
   activateEndMode: function(){
-    if (isMobile) {
-      this.props.navigationPanel.minimize();
-    }
-
     this.props.model.activateEndMode(); // working
   },
 
