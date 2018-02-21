@@ -416,23 +416,76 @@ var InfoClickModel = {
       information = feature.infobox;
       information = information.replace(/export:/g, '');
     }
+    // Detaljplaner:300(idNummer)
+    if(layer.get("name") !== "300") {
+      console.log("after if");
+      console.log(layer.get("name"));
+      if (information && typeof information === "string") {
+        (information.match(/\{.*?\}\s?/g) || []).forEach(property => {
+          function lookup(o, s)
+        {
+          s = s.replace('{', '')
+            .replace('}', '')
+            .trim()
+            .split('.');
 
-    if (information && typeof information === "string") {
-      (information.match(/\{.*?\}\s?/g) || []).forEach(property => {
-          function lookup(o, s) {
-            s = s.replace('{', '')
-                 .replace('}', '')
-                 .trim()
-                 .split('.');
-
-            switch (s.length) {
-              case 1: return o[s[0]] || "";
-              case 2: return o[s[0]][s[1]] || "";
-              case 3: return o[s[0]][s[1]][s[2]] || "";
-            }
+          switch (s.length) {
+            case 1:
+              return o[s[0]] || "";
+            case 2:
+              return o[s[0]][s[1]] || "";
+            case 3:
+              return o[s[0]][s[1]][s[2]] || "";
           }
-          information = information.replace(property, lookup(properties, property));
+        }
+        information = information.replace(property, lookup(properties, property));
       });
+      }
+    }else {
+      console.log("Detaljplaner");
+      //Allow multiple URLs "Detaljplaner"
+      if (information && typeof information === "string") {
+        (information.match(/\{.*?\}\s?/g) || []).forEach(property => {
+          function lookup(o, s)
+        {
+          s = s.replace('{', '')
+            .replace('}', '')
+            .trim()
+            .split('.');
+
+          switch (s.length) {
+            case 1:
+              return o[s[0]] || "";
+            case 2:
+              return o[s[0]][s[1]] || "";
+            case 3:
+              return o[s[0]][s[1]][s[2]] || "";
+          }
+        }
+        console.log("First 3 string");
+        console.log(property.substring(5, 6));
+        console.log("property");
+        console.log(lookup(properties, property));
+        console.log("length");
+        console.log(lookup(properties, property).length);
+        if (property.substring(1, 4) == "url" && lookup(properties, property).length > 0) {
+            console.log("flera url");
+            if(property.substring(5,6) == ""){
+              var val = '<tr><td> <strong>PDF-dokument</strong> </td>\n' +
+                '<td> <a href=\\"' + lookup(properties, property) + '\\" target=\\"_blank\\"> Öppna detaljplanen i nytt fönster </a> </td></tr>'
+            }else{
+              var val = '<tr><td></td>\n' +
+              '<td> <a href=\\"' + lookup(properties, property) + '\\" target=\\"_blank\\">del ' + property.substring(5, 6) + '</a> </td></tr>'
+            }
+
+          console.log(val);
+          information = information.replace(property, val);
+        } else {
+          information = information.replace(property, lookup(properties, property));
+        }
+
+      });
+      }
     }
 
     if (!layerModel) {
