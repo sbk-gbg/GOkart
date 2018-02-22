@@ -28,7 +28,9 @@ var defaultState = {
   active: false,
   index: 0,
   instruction: "",
-  varbergVer: false
+  varbergVer: false,
+  urlForAjax: "",
+  wfsLayers:
 };
 
 class ToolOptions extends Component {
@@ -48,7 +50,8 @@ class ToolOptions extends Component {
         active: true,
         index: tool.index,
         instruction: tool.options.instruction,
-        varbergVer: tool.options.varbergVer
+        varbergVer: tool.options.varbergVer,
+        urlForAjax: tool.options.urlForAjax
       });
     } else {
       this.setState({
@@ -101,6 +104,7 @@ class ToolOptions extends Component {
         t.options = tool.options;
         t.index = tool.index;
         t.instruction = tool.instruction;
+        t.urlForAjax = tool.urlForAjax;
       }
     });
   }
@@ -112,7 +116,8 @@ class ToolOptions extends Component {
       "index": this.state.index,
       "options": {
         "instruction": this.state.instruction,
-        "varbergVer": this.state.varbergVer
+        "varbergVer": this.state.varbergVer,
+        "urlForAjax": this.state.urlForAjax
       }
     };
 
@@ -199,6 +204,15 @@ class ToolOptions extends Component {
               onChange={(e) => {this.handleInputChange(e)}}
               checked={this.state.varbergVer}/>&nbsp;
             <label htmlFor="varbergVer">Varbergs version</label>
+          </div>
+          <div>
+            <label htmlFor="urlForAjax">geoserver's url for VarbergsVer</label>
+            <input
+              id="urlForAjax"
+              name="urlForAjax"
+              type="urlForAjax"
+              onChange={(e) => {this.handleInputChange(e)}}
+              value={this.state.urlForAjax}/>
           </div>
         </form>
       </div>

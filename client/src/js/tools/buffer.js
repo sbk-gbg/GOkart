@@ -47,7 +47,8 @@ var BufferModelProperties = {
   markerPos: undefined,
   popupHighlight: undefined,
   instruction: '',
-  varbergVer: false
+  varbergVer: false,
+  urlForAjax: ''
 }
 
 /**
@@ -374,9 +375,9 @@ var BufferModel = {
 
     var wfsRequset = requestPrefix + queries + requestSuffix;
 
-    // Do Ajax call
+    // Do Ajax call, the "url" is from the json file
     $.ajax({
-      url: '/geoserver/varberg/wms',
+      url: this.get("urlForAjax"),
       contentType: 'text/xml',
       crossDomain: true,
       type: 'post',
