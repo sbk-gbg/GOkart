@@ -30,7 +30,8 @@ var defaultState = {
   instruction: "",
   varbergVer: false,
   urlForAjax: "",
-  wfsLayers:
+  notFeatureLayer: "",
+  layerName: ""
 };
 
 class ToolOptions extends Component {
@@ -51,7 +52,9 @@ class ToolOptions extends Component {
         index: tool.index,
         instruction: tool.options.instruction,
         varbergVer: tool.options.varbergVer,
-        urlForAjax: tool.options.urlForAjax
+        urlForAjax: tool.options.urlForAjax,
+        notFeatureLayer: tool.options.notFeatureLayer,
+        layerName: tool.options.layerName
       });
     } else {
       this.setState({
@@ -105,6 +108,8 @@ class ToolOptions extends Component {
         t.index = tool.index;
         t.instruction = tool.instruction;
         t.urlForAjax = tool.urlForAjax;
+        t.notFeatureLayer = tool.notFeatureLayer;
+        t.layerName = tool.layerName;
       }
     });
   }
@@ -117,7 +122,9 @@ class ToolOptions extends Component {
       "options": {
         "instruction": this.state.instruction,
         "varbergVer": this.state.varbergVer,
-        "urlForAjax": this.state.urlForAjax
+        "urlForAjax": this.state.urlForAjax,
+        "notFeatureLayer": this.state.notFeatureLayer,
+        "layerName": this.state.layerName
       }
     };
 
@@ -210,9 +217,27 @@ class ToolOptions extends Component {
             <input
               id="urlForAjax"
               name="urlForAjax"
-              type="urlForAjax"
+              type="text"
               onChange={(e) => {this.handleInputChange(e)}}
               value={this.state.urlForAjax}/>
+          </div>
+          <div>
+            <label htmlFor="notFeatureLayer">Lager som inte används för VarbergsVer</label>
+            <input
+              id="notFeatureLayer"
+              name="notFeatureLayer"
+              type="text"
+              onChange={(e) => {this.handleInputChange(e)}}
+              value={this.state.notFeatureLayer}/>
+          </div>
+          <div>
+            <label htmlFor="layerName">Namn för lager VarbergsVer</label>
+            <input
+              id="layerName"
+              name="layerName"
+              type="text"
+              onChange={(e) => {this.handleInputChange(e)}}
+              value={this.state.layerName}/>
           </div>
         </form>
       </div>

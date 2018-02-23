@@ -48,7 +48,9 @@ var BufferModelProperties = {
   popupHighlight: undefined,
   instruction: '',
   varbergVer: false,
-  urlForAjax: ''
+  urlForAjax: '',
+  notFeatureLayer: '',
+  layerName: ''
 }
 
 /**
@@ -271,8 +273,7 @@ var BufferModel = {
       olf.setId(Math.random() * 1E20);
 
       return olf;
-    })
-      ;
+    });
 
       if (buffered) {
         this.get('bufferLayer').getSource().addFeatures(buffered);
@@ -287,7 +288,8 @@ var BufferModel = {
 
       this.deActivateBufferMarker();
 // JSON?
-      var notFeatureLayers = ['150', '160', '170', '410', '420', '430', '440', '260', '310', '350', '360', '250', '230', '340', '330', '270', '280', '320', '325', '140', '220', '210'];
+      // notfeatureLayers from the json
+      var notFeatureLayers = this.get("notFeatureLayer");
       var activeLayers = [];
       for (var i = 0; i < this.get('layersCollection').length; i++) {
         if (this.get('layersCollection').models[i].getVisible() && notFeatureLayers.indexOf(this.get('layersCollection').models[i].id) != -1) {
@@ -415,31 +417,8 @@ var BufferModel = {
     var endCategoryToStartLayers = '</label></div><div class="panel-body"><div class="legend"><div>';
     var categorySuffix = '</div></div></div></div>';
 
-    var geoserverNameToCategoryName = {
-      'forskolor': 'Förskola',
-      'grundskolor': 'Grundskola',
-      'gymnasieskolor': 'Gymnasieskolor',
-      'vardcentral': 'Vårdcentral',
-      'vardcentral_privat': 'Privat vårdcentral',
-      'sjukhus': 'Sjukhus',
-      'folktandvard': 'Folktandvård',
-      'badplatser': 'Badplatser',
-      'bibliotek': 'Bibliotek',
-      'hallplatser_for_bokbussen': 'Hållplatser bokbussen',
-      'kultur_utf_8': 'Kultur och teater',
-      'lekplatser': 'Lekplatser',
-      'offentliga_toaletter': 'Offentliga toaletter',
-      'off_konst': 'Offentliga konstverk',
-      'turistbyran': 'Turistbyrå',
-      'atervinningsstationer': 'Återvinningsstationer',
-      'atervinningscentraler': 'Återvinningscentraler',
-      'detaljplaner': 'Detljplaner',
-      'fornybar_energi': 'Förnybar energi',
-      'cykelservicestallen': 'Cykelservice',
-      'laddplatser': 'Laddplatser',
-      'parkering_punkt': 'Parkeringsplatser',
-      'polisstationer': 'Polisstation'
-    };
+    // layerName from the json
+    var geoserverNameToCategoryName = this.get("layerName");
 
 
     var div = document.createElement('div');
