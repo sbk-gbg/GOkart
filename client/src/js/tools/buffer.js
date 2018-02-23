@@ -289,6 +289,7 @@ var BufferModel = {
       this.deActivateBufferMarker();
 // JSON?
       // notfeatureLayers from the json
+      // "notFeatureLayer": ["idNummer1", "idNummer2"...]
       var notFeatureLayers = this.get("notFeatureLayer");
       var activeLayers = [];
       for (var i = 0; i < this.get('layersCollection').length; i++) {
@@ -418,8 +419,8 @@ var BufferModel = {
     var categorySuffix = '</div></div></div></div>';
 
     // layerName from the json
+    // JSON-> "layerName": {"name from geoserver": "optional name for the title", "forskolor": "Förskola", ...}
     var geoserverNameToCategoryName = this.get("layerName");
-
 
     var div = document.createElement('div');
 
