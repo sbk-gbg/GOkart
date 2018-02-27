@@ -138,11 +138,14 @@ var SearchBarView = {
   componentDidUpdate: function(){
 
     var hit = document.getElementById('hit-0-group-0');
+    console.log("running componentDidUpdate");
     if (!this.state.haveUrlSearched){
       try {
+        console.log("clicking on hit");
         hit.click();
       } catch (err){
-
+        console.log("error when clicking");
+        console.log(err);
       }
     }
 
