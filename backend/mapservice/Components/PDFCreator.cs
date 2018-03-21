@@ -15,13 +15,11 @@ using System.Drawing.Imaging;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using PdfSharp;
-using log4net;
 
 namespace MapService.Components
 {
     public class PDFCreator
     {
-        ILog _log = LogManager.GetLogger(typeof(PDFCreator));
         /// <summary>
         /// 
         /// </summary>
@@ -84,22 +82,15 @@ namespace MapService.Components
         /// <returns>byte[]</returns>
         private byte[] createPdf(Image img, MapExportItem exportItem)
         {
-            _log.Debug("createPdf");
             PdfDocument document = new PdfDocument();
-            _log.Debug("createPdf2");
             PdfPage page = document.AddPage();
-            _log.Debug("createPdf3");
 
             page.Size = GetPageSize(exportItem);
-            _log.Debug("createPdf4");
             page.Orientation = exportItem.orientation == "L" ? PdfSharp.PageOrientation.Landscape : PdfSharp.PageOrientation.Portrait;
-            _log.Debug("createPdf5");
 
             XGraphics gfx = XGraphics.FromPdfPage(page);
-            _log.Debug("createPdf6");
 
             int scale = int.Parse(exportItem.scale);
-            _log.Debug("createPdf7");
             double length = (1.0 / scale);
             double unitLength = (length * 2.82e3);
 
@@ -133,13 +124,13 @@ namespace MapService.Components
 
             int displayLength = GetDisplayLength(unitLength, scaleBarLengths, scale);
             string displayText = GetDisplayText(unitLength, scaleBarTexts, scale);
-          
-            // Choose layout from config value. This is configured in Web.config.
+
+            // adding support for different layouts
             int layout = ConfigurationManager.AppSettings["exportLayout"] != null ? int.Parse(ConfigurationManager.AppSettings["exportLayout"]) : 1;
             if (layout == 1)//original layout
             {
+                //origina code from github
 
-                _log.Debug("createPdf8");
                 this.drawImage(gfx, img, 0, 0, page);
 
                 List<string> copyrights = new List<string>();
@@ -148,7 +139,6 @@ namespace MapService.Components
                     copyrights = ConfigurationManager.AppSettings["exportCopyrightText"].Split(',').ToList();
                 }
 
-                _log.Debug("createPdf9");
                 string infoText = String.Empty;
                 if (ConfigurationManager.AppSettings["exportInfoText"] != null)
                 {
@@ -156,7 +146,6 @@ namespace MapService.Components
                 }
 
                 int height = 45 + copyrights.Count * 10;
-                _log.Debug("createPdf10");
 
                 XPoint[] points = new XPoint[]
                 {
@@ -167,26 +156,17 @@ namespace MapService.Components
                 new XPoint(12, 12)
                 };
 
-                _log.Debug("createPdf11");
                 gfx.DrawPolygon(XBrushes.White, points, XFillMode.Winding);
 
-                _log.Debug("createPdf12");
                 this.drawText(gfx, String.Format("Skala 1:{0}", exportItem.scale), 15, 25);
-                _log.Debug("createPdf13");
                 gfx.DrawLine(XPens.Black, new XPoint(15, 32), new XPoint(15 + displayLength, 32));
-                _log.Debug("createPdf14");
                 gfx.DrawLine(XPens.Black, new XPoint(15, 28), new XPoint(15, 36));
-                _log.Debug("createPdf15");
                 gfx.DrawLine(XPens.Black, new XPoint(15 + displayLength, 28), new XPoint(15 + displayLength, 36));
-                _log.Debug("createPdf16");
                 this.drawText(gfx, displayText, 20 + displayLength, 35);
-                _log.Debug("createPdf17");
 
                 var y = (int)page.Height.Point - 15;
-                _log.Debug("createPdf18");
 
                 this.drawText(gfx, infoText, 15, y);
-                _log.Debug("createPdf19");
 
                 int i = 0;
                 copyrights.ForEach(copyright =>
@@ -196,7 +176,6 @@ namespace MapService.Components
                     i++;
                 });
 
-                _log.Debug("createPdf20");
                 XImage logo = XImage.FromFile(Path.Combine(HostingEnvironment.ApplicationPhysicalPath, "assets", "logo.png"));
                 gfx.DrawImage(logo, (gfx.PageSize.Width - logo.PixelWidth / 2) - 12, 12, logo.PixelWidth / 2, logo.PixelHeight / 2);
 
@@ -205,7 +184,6 @@ namespace MapService.Components
                 using (MemoryStream ms = new MemoryStream())
                 {
                     document.Save(ms);
-                    _log.Debug("createPdf21");
                     bytes = ReadFully(ms);
                 }
 
@@ -274,7 +252,6 @@ namespace MapService.Components
                 return bytes;
             }
 
-            _log.Debug("createPdf30");
             return null;
         }
 
@@ -301,7 +278,7 @@ namespace MapService.Components
                 return scaleBarText;
             }
             if (scale <= 500) {
-                return unitLength * (scale / 10) + " m";
+                return (scale / 10) + " m";
             }
             if (scale < 25000)
             {
