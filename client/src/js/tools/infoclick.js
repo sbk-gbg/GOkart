@@ -472,10 +472,10 @@ var InfoClickModel = {
             console.log("flera url");
             if(property.substring(5,6) == ""){
               var val = '<tr><td> <strong>PDF-dokument</strong> </td>\n' +
-                '<td> <a href=\\"' + lookup(properties, property) + '\\" target=\\"_blank\\"> Öppna detaljplanen i nytt fönster </a> </td></tr>'
+                '<td> <a href=\"' + lookup(properties, property) + '\" target=\"_blank\"> Öppna detaljplanen i nytt fönster </a> </td></tr>'
             }else{
               var val = '<tr><td></td>\n' +
-              '<td> <a href=\\"' + lookup(properties, property) + '\\" target=\\"_blank\\">del ' + property.substring(5, 6) + '</a> </td></tr>'
+              '<td> <a href=\"' + lookup(properties, property) + '\" target=\"_blank\">del ' + property.substring(5, 6) + '</a> </td></tr>'
             }
 
           console.log(val);
