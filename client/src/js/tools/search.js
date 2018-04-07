@@ -68,7 +68,7 @@ var SearchModel = {
   },
 
   configure: function (shell) {
-    this.set('displayPopupBar', this.get('displayPopup'));
+    this.set('displayPopupBar', isMobile ? false : this.get('displayPopup'));
     this.set('layerCollection', shell.getLayerCollection());
     this.set('map', shell.getMap().getMap());
     this.featureLayer = new ol.layer.Vector({
