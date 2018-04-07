@@ -353,7 +353,7 @@ var SearchBarView = {
               <div className="searchbar-results">
                 <h3 id="searchbar-results-title">
                   Sökresultat 
-                  {resultsCount > 0 ? <span className="search-results-total-count">({resultsCount})</span> : null }
+                  {resultsCount > 0 ? <span className="search-results-total-count">({resultsCount})</span> : null } {checkbox}
                 </h3>
                 <div id="searchbar-results-list" style={resultStyle}>
                   { enable_checkbox ? checkbox : null }
