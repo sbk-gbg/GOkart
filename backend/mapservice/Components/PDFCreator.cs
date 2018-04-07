@@ -189,10 +189,11 @@ namespace MapService.Components
 
                 return bytes;
             }
-            else if (layout == 2)//new layout
+            else if (layout == 2)// Varberg created layout
             {
                 // x and y 0 0(top left corner?)-> change
-                this.drawImage(gfx, img, 33, 33, page);
+                double whiteScale = 0.04; // 4% margin on each side. This has to be the same as the margin in export.js!!! Otherwise the scale will be incorrect!
+                this.drawImage(gfx, img, page.Width.Point * whiteScale, page.Height.Point * whiteScale, page);
 
                 List<string> copyrights = new List<string>();
                 if (ConfigurationManager.AppSettings["exportCopyrightText"] != null)
@@ -207,7 +208,7 @@ namespace MapService.Components
                 }
 
                 int height = 1;
-
+                displayLength = (int) ((double) displayLength * (1 - 2 * whiteScale));
                 XPoint[] points = new XPoint[]
                 {
                 new XPoint(12, 12),

@@ -138,10 +138,19 @@ var ExportPdfSettings = React.createClass({
     var width  = pageSize(this.getFormat()).width
     ,   height = pageSize(this.getFormat()).height;
 
-    return {
-      width: ((width / 25.4)),
-      height:  ((height / 25.4))
-    };
+    if(this.props.model.get("layout") == 2){
+      // The "Varberg" version has four percent margins. If the value is changed in mapservice, it has to be
+      // changed here too.
+      return {
+        width: ((width / 25.4)) * (1 - 0.04 * 2),
+        height:  ((height / 25.4)) * (1 - 0.04 * 2)
+      }
+    } else {
+      return {
+        width: ((width / 25.4)),
+        height:  ((height / 25.4))
+      }
+    }
   },
 
   getPreviewPaperMeasures: function() { 
