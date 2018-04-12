@@ -30,12 +30,14 @@ var CoordinatesList = React.createClass({
     );
   },
 
+  // change to 1 decimal from 5 -> 10cm accuracy
   convertDDToDMS: function(D, lng){
+
     return {
       dir : D < 0 ? lng? 'W' : 'S' :lng ? 'E' : 'N',
       deg : Math.floor((D < 0 ? D =- D : D)),
       min : Math.floor((D * 60) % 60),
-      sec : ((D * 3600) % 60).toFixed(5)
+      sec : ((D * 3600) % 60).toFixed(1)
     };
   },
 
@@ -62,17 +64,25 @@ var CoordinatesList = React.createClass({
   },
 
   getX: function (xyObject) {
+    var numberOfgetX = Math.floor(xyObject.x);
+    valOfgetX = numberOfgetX.toString().match(/(\d+?)(?=(\d{3})+(?!\d)|$)/g);
+    console.log("getX");
+    console.log(valOfgetX);
     return (
       <span>
-        <strong>{ xyObject.xtitle }: </strong> { xyObject.x.toFixed(2) } m
+        <strong>{ xyObject.xtitle }: </strong>  {valOfgetX[0] + " " + valOfgetX[1]}
       </span>
     )
   },
 
   getY: function (xyObject) {
+    var numberOfgetY = Math.floor(xyObject.y);
+    valOfgetY = numberOfgetY.toString().match(/(\d+?)(?=(\d{3})+(?!\d)|$)/g);
+    console.log("getY");
+    console.log(valOfgetY);
     return (
       <span>
-        <strong>{ xyObject.ytitle }: </strong> { xyObject.y.toFixed(2) } m
+        <strong>{ xyObject.ytitle }: </strong> {valOfgetY[0] + " " + valOfgetY[1] + " " +valOfgetY[2]}
       </span>
     )
   },
@@ -131,6 +141,8 @@ var CoordinatesList = React.createClass({
 
   render: function() {
     var coordinates = this.props.coordinates;
+    console.log("coordinates");
+    console.log(coordinates);
     return (
       <dl>
         { Object.keys(coordinates).map((key) => this.processRow(coordinates[key], key)) }
