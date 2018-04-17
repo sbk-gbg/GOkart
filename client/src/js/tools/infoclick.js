@@ -189,15 +189,27 @@ var InfoClickModel = {
             resolve();
           },
           success: (features, layer) => {
+      var arr = new Array();
             if (Array.isArray(features) && features.length > 0) {
               features.forEach(feature => {
                 this.addInformation(feature, wmsLayer, (featureInfo) => {
-                  try{ // TODO: solkarta
-                    if (wmsLayer.attributes.caption === "Solkartan" && featureInfo.feature.get('geometry') === null){
-                      return;
+                    try{ // TODO: solkarta
+                      if (wmsLayer.attributes.caption === "Solkartan" && featureInfo.feature.get('geometry') === null){
+                        return;
+                      }
+                      if (wmsLayer.attributes.caption === "Stadsutvecklingsprojektet"){
+                        arr.push(featureInfo.feature.get('id'));
+                          for(i=0; i<arr.length; i++) {
+                            if (arr.slice(0,i-1).includes(featureInfo.feature.get('id'))) {
+                              return;
+                            }
+                          }
+
                     }
-                  } catch (e){
-                  }
+
+                    } catch (e){
+                    }
+
                   if (featureInfo) {
                     infos.push(featureInfo);
                   }
