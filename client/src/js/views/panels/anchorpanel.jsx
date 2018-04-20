@@ -80,6 +80,10 @@ var AnchorPanelView = {
           <p>
             När du har skapat en länk kan du kopiera länkadressen genom att högerklicka på "Länk" nedan.<br/>
           </p>
+          <div>
+            <input type="text" id="link" value={anchor}></input>&nbsp;&nbsp;
+              <a target="_blank" href={anchor}>Länk</a>
+          </div>
           <div className="alert alert-success">
             <a target="_blank" href={anchor}>Länk</a>
           </div>
