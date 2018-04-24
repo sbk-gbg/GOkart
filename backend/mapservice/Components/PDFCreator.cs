@@ -208,7 +208,6 @@ namespace MapService.Components
                 }
 
                 int height = 1;
-                displayLength = (int) ((double) displayLength * (1 - 2 * whiteScale));
                 XPoint[] points = new XPoint[]
                 {
                 new XPoint(12, 12),
