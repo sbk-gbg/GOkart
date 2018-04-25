@@ -231,6 +231,14 @@ var InfoClickModel = {
         var s1 = a.information.layerindex
         ,   s2 = b.information.layerindex
         ;
+
+        // Detaljplaner should be sorted on antagen instead of layerindex
+        if(typeof a.information.antagen !== "undefined" &&
+        typeof b.information.antagen !== "undefined"){
+          s1 = a.information.antagen;
+          s2 = b.information.antagen;
+        }
+
         return s1 === s2 ? 0 : s1 < s2 ? 1 : -1;
       });
 
@@ -419,6 +427,7 @@ var InfoClickModel = {
     ,   properties
     ,   information
     ,   iconUrl = feature.get('iconUrl') || ''
+    ,   antagen = false
     ;
    
     properties = feature.getProperties();
@@ -430,8 +439,6 @@ var InfoClickModel = {
     }
     // Detaljplaner:300(idNummer)
     if(layer.get("name") !== "300") {
-      console.log("after if");
-      console.log(layer.get("name"));
       if (information && typeof information === "string") {
         (information.match(/\{.*?\}\s?/g) || []).forEach(property => {
           function lookup(o, s)
@@ -454,7 +461,6 @@ var InfoClickModel = {
       });
       }
     }else {
-      console.log("Detaljplaner");
       //Allow multiple URLs "Detaljplaner"
       if (information && typeof information === "string") {
         (information.match(/\{.*?\}\s?/g) || []).forEach(property => {
@@ -474,14 +480,10 @@ var InfoClickModel = {
               return o[s[0]][s[1]][s[2]] || "";
           }
         }
-        console.log("First 3 string");
-        console.log(property.substring(5, 6));
-        console.log("property");
-        console.log(lookup(properties, property));
-        console.log("length");
-        console.log(lookup(properties, property).length);
+        if(property.includes("{antagen}")){
+          antagen = lookup(properties, property);
+        }
         if (property.substring(1, 4) == "url" && lookup(properties, property).length > 0) {
-            console.log("flera url");
             if(property.substring(5,6) == ""){
               var val = '<tr><td> <strong>PDF-dokument</strong> </td>\n' +
                 '<td> <a href=\"' + lookup(properties, property) + '\" target=\"_blank\"> Öppna detaljplanen i nytt fönster </a> </td></tr>'
@@ -490,7 +492,6 @@ var InfoClickModel = {
               '<td> <a href=\"' + lookup(properties, property) + '\" target=\"_blank\">del ' + property.substring(5, 6) + '</a> </td></tr>'
             }
 
-          console.log(val);
           information = information.replace(property, val);
         } else {
           information = information.replace(property, lookup(properties, property));
@@ -508,16 +509,23 @@ var InfoClickModel = {
         : 999;
     }
 
-    callback({
+    var retObj = {
       feature: feature,
       layer: layer,
       information: {
-          caption: layerModel && layerModel.getCaption() || "Sökträff",
-          layerindex: layerindex,
-          information: information || properties,
-          iconUrl: iconUrl,
+        caption: layerModel && layerModel.getCaption() || "Sökträff",
+        layerindex: layerindex,
+        information: information || properties,
+        iconUrl: iconUrl,
       }
-    });
+    };
+
+    // used for sorting detaljplaner
+    if(antagen !== false){
+      retObj.information.antagen = antagen;
+    }
+
+    callback(retObj);
   },
 
   /**
