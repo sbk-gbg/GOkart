@@ -95,6 +95,10 @@ var SearchBarView = {
     var s = paramGet('s');
     var v = paramGet('v');
 
+    console.log("s V");
+    console.log(s);
+    console.log(v);
+
     if(s == null){
       this.props.model.set('filter', '*');
     }else{
@@ -107,7 +111,7 @@ var SearchBarView = {
       this.props.model.set('filter', filterName);
     }
 
-    if((!this.state.haveUrlSearched) && typeof v !== 'undefined') {
+    if((!this.state.haveUrlSearched) && typeof v !== 'undefined' && v !== null) {
       var field = document.getElementById("searchbar-input-field");
       field.value = v;
       this.valueBar = v;
