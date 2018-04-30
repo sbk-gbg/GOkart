@@ -59,6 +59,7 @@ var AnchorPanelView = {
     this.setState({
       anchor: this.props.model.generate()
     });
+
   },
 
   openInstruction: function (){
@@ -83,9 +84,6 @@ var AnchorPanelView = {
           <div>
             <input type="text" id="link" value={anchor}></input>&nbsp;&nbsp;
               <a target="_blank" href={anchor}>Länk</a>
-          </div>
-          <div className="alert alert-success">
-            <a target="_blank" href={anchor}>Länk</a>
           </div>
         </div>
       </Panel>
