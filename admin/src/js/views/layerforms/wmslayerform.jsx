@@ -41,6 +41,7 @@ const defaultState = {
   owner: "",
   url: "",
   queryable: true,
+  opacity: "",
   tiled: false,
   singleTile: false,
   imageFormat: "",
@@ -144,8 +145,8 @@ class WMSLayerForm extends Component {
 
   createGuid() {
     return Math.floor((1 + Math.random()) * 0x1000000)
-        .toString(16)
-        .substring(1);
+      .toString(16)
+      .substring(1);
   }
 
   renderLayersFromCapabilites() {
@@ -155,7 +156,7 @@ class WMSLayerForm extends Component {
       var append = (layer) => {
 
         var classNames = this.state.layerPropertiesName === layer.Name ?
-                         "fa fa-info-circle active" : "fa fa-info-circle";
+          "fa fa-info-circle active" : "fa fa-info-circle";
 
         var i = this.createGuid();
         var title = /^\d+$/.test(layer.Name) ? <label>&nbsp;{layer.Title}</label> : null;
@@ -268,6 +269,7 @@ class WMSLayerForm extends Component {
       imageFormat: this.getValue("imageFormat"),
       serverType: this.getValue("serverType"),
       queryable: this.getValue("queryable"),
+      opacity: this.getValue("opacity"),
       tiled: this.getValue("tiled"),
       drawOrder: this.getValue("drawOrder"),
       attribution: this.getValue("attribution"),
@@ -299,7 +301,7 @@ class WMSLayerForm extends Component {
     }
 
     var input = this.refs["input_" + fieldName]
-    ,   value = input ? input.value : "";
+      ,   value = input ? input.value : "";
 
     if (fieldName === 'date') value = create_date();
     if (fieldName === 'singleTile') value = input.checked;
@@ -334,11 +336,16 @@ class WMSLayerForm extends Component {
   validateField (fieldName, e) {
 
     var value = this.getValue(fieldName)
-    ,   valid = true;
+      ,   valid = true;
 
     switch (fieldName) {
       case "layers":
         if (value.length === 0) {
+          valid = false;
+        }
+        break;
+      case "opacity":
+        if (!number(value) || empty(value)) {
           valid = false;
         }
         break;
@@ -462,6 +469,17 @@ class WMSLayerForm extends Component {
           </select>
         </div>
         <div>
+          <label>Opacitet*</label>
+          <input
+            type="number"
+            ref="input_opacity"
+            value={this.state.opacity}
+            onChange={(e) => {
+              this.setState({opacity: e.target.value});
+            }}
+          />
+        </div>
+        <div>
           <label>Single tile</label>
           <input
             type="checkbox"
@@ -517,67 +535,67 @@ class WMSLayerForm extends Component {
           </div>
           <div className={infoClass}>
             <label>Rubrik</label>
-            <input 
+            <input
               type="text"
               ref="input_infoTitle"
-                onChange={(e) => {
-                  this.setState({infoTitle: e.target.value});
-                  this.validateField("infoTitle", e);
-                }}
-                value={this.state.infoTitle}
-                className={this.getValidationClass("infoTitle")}
+              onChange={(e) => {
+                this.setState({infoTitle: e.target.value});
+                this.validateField("infoTitle", e);
+              }}
+              value={this.state.infoTitle}
+              className={this.getValidationClass("infoTitle")}
             />
           </div>
           <div className={infoClass}>
             <label>Text</label>
-            <textarea 
+            <textarea
               type="text"
               ref="input_infoText"
-                onChange={(e) => {
-                  this.setState({infoText: e.target.value});
-                  this.validateField("infoText", e);
-                }}
-                value={this.state.infoText}
-                className={this.getValidationClass("infoText")}
+              onChange={(e) => {
+                this.setState({infoText: e.target.value});
+                this.validateField("infoText", e);
+              }}
+              value={this.state.infoText}
+              className={this.getValidationClass("infoText")}
             />
           </div>
           <div className={infoClass}>
             <label>Länk (ex. till PDF)</label>
-            <input 
+            <input
               type="text"
               ref="input_infoUrl"
-                onChange={(e) => {
-                  this.setState({infoUrl: e.target.value});
-                  this.validateField("infoUrl", e);
-                }}
-                value={this.state.infoUrl}
-                className={this.getValidationClass("infoUrl")}
+              onChange={(e) => {
+                this.setState({infoUrl: e.target.value});
+                this.validateField("infoUrl", e);
+              }}
+              value={this.state.infoUrl}
+              className={this.getValidationClass("infoUrl")}
             />
           </div>
           <div className={infoClass}>
             <label>Länktext</label>
-            <input 
+            <input
               type="text"
               ref="input_infoUrlText"
-                onChange={(e) => {
-                  this.setState({infoUrlText: e.target.value});
-                  this.validateField("infoUrlText", e);
-                }}
-                value={this.state.infoUrlText}
-                className={this.getValidationClass("infoUrlText")}
+              onChange={(e) => {
+                this.setState({infoUrlText: e.target.value});
+                this.validateField("infoUrlText", e);
+              }}
+              value={this.state.infoUrlText}
+              className={this.getValidationClass("infoUrlText")}
             />
           </div>
           <div className={infoClass}>
             <label>Ägare</label>
-            <input 
+            <input
               type="text"
               ref="input_infoOwner"
-                onChange={(e) => {
-                  this.setState({infoOwner: e.target.value});
-                  this.validateField("infoOwner", e);
-                }}
-                value={this.state.infoOwner ? this.state.infoOwner : this.state.owner}
-                className={this.getValidationClass("infoOwner")}
+              onChange={(e) => {
+                this.setState({infoOwner: e.target.value});
+                this.validateField("infoOwner", e);
+              }}
+              value={this.state.infoOwner ? this.state.infoOwner : this.state.owner}
+              className={this.getValidationClass("infoOwner")}
             />
           </div>
         </div>
