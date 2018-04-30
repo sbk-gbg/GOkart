@@ -197,6 +197,9 @@ var InfoClickModel = {
                       if (wmsLayer.attributes.caption === "Solkartan" && featureInfo.feature.get('geometry') === null){
                         return;
                       }
+                      if (wmsLayer.attributes.caption === "Geografiska områden" && featureInfo.feature.get('omrade') === null){
+                        return;
+                      }
                       if (wmsLayer.attributes.caption === "Stadsutvecklingsprojektet"){
                         arr.push(featureInfo.feature.get('id'));
                           for(i=0; i<arr.length; i++) {
