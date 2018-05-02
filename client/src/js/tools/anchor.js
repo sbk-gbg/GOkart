@@ -133,6 +133,8 @@ var AnchorModel = {
   clicked: function (arg) {
     this.set('visible', true);    
     this.set('toggled', !this.get('toggled'));
+    this.set("firstTime", true);
+
 
   }
 };
