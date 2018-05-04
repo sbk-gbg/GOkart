@@ -47,7 +47,10 @@ var BufferModelProperties = {
   markerPos: undefined,
   popupHighlight: undefined,
   instruction: '',
-  varbergVer: false
+  varbergVer: false,
+  geoserverUrl: '',
+  notFeatureLayers: [],
+  geoserverNameToCategoryName: {}
 }
 
 /**
@@ -169,6 +172,16 @@ var BufferModel = {
       map: this.get('olMap'),
       layerCollection: shell.getLayerCollection()
     }));
+
+    if(typeof this.get("geoserverNameToCategoryName") === "string"){
+        try {
+          this.set("geoserverNameToCategoryName", JSON.parse(this.get("geoserverNameToCategoryName")));
+        } catch (e){
+          this.set("geoserverNameToCategoryName", {});
+          console.log("Got error in parsing geoserverNameToCategoryName");
+          console.log(e);
+      }
+    }
   },
 
   activateBufferMarker: function(){
@@ -286,10 +299,12 @@ var BufferModel = {
 
       this.deActivateBufferMarker();
 // JSON?
-      var notFeatureLayers = ['150', '160', '170', '410', '420', '430', '440', '260', '310', '350', '360', '250', '230', '340', '330', '270', '280', '320', '325', '140', '220', '210'];
+      // var notFeatureLayers = ['150', '160', '170', '410', '420', '430', '440', '260', '310', '350', '360', '250', '230', '340', '330', '270', '280', '320', '325', '140', '220', '210'];
+      console.log("notFeatureLayers");
+      console.log(this.get("notFeatureLayers"));
       var activeLayers = [];
       for (var i = 0; i < this.get('layersCollection').length; i++) {
-        if (this.get('layersCollection').models[i].getVisible() && notFeatureLayers.indexOf(this.get('layersCollection').models[i].id) != -1) {
+        if (this.get('layersCollection').models[i].getVisible() && this.get("notFeatureLayers").indexOf(this.get('layersCollection').models[i].id) != -1) {
           activeLayers.push(this.get('layersCollection').models[i]);
         }
       }
@@ -374,9 +389,10 @@ var BufferModel = {
 
     var wfsRequset = requestPrefix + queries + requestSuffix;
 
+
     // Do Ajax call
     $.ajax({
-      url: '/geoserver/varberg/wms',
+      url: this.get("geoserverUrl"),
       contentType: 'text/xml',
       crossDomain: true,
       type: 'post',
@@ -409,12 +425,15 @@ var BufferModel = {
     }
     var categories = Object.keys(foundFeatures);
     categories.sort();
+    console.log("categories");
+    console.log(categories);
 
     var categoryPrefix = '<div class="panel panel-default layer-item"><div class="panel-heading unselectable"><label class="layer-item-header-text">';
     var endCategoryToStartLayers = '</label></div><div class="panel-body"><div class="legend"><div>';
     var categorySuffix = '</div></div></div></div>';
 
-    var geoserverNameToCategoryName = {
+    /*
+      var geoserverNameToCategoryName = {
       'forskolor': 'Förskola',
       'grundskolor': 'Grundskola',
       'gymnasieskolor': 'Gymnasieskolor',
@@ -432,16 +451,20 @@ var BufferModel = {
       'turistbyran': 'Turistbyrå',
       'atervinningsstationer': 'Återvinningsstationer',
       'atervinningscentraler': 'Återvinningscentraler',
-      'detaljplaner': 'Detljplaner',
+      'detaljplaner': 'Detaljplaner',
       'fornybar_energi': 'Förnybar energi',
       'cykelservicestallen': 'Cykelservice',
       'laddplatser': 'Laddplatser',
       'parkering_punkt': 'Parkeringsplatser',
       'polisstationer': 'Polisstation'
     };
+    */
 
 
     var div = document.createElement('div');
+
+    console.log("geoserverNameToCategoryName");
+    console.log(this.get("geoserverNameToCategoryName"));
 
     for(var i = 0; i < categories.length; i++){
       var outerDiv = document.createElement('div');
@@ -453,7 +476,12 @@ var BufferModel = {
       label.className = 'layer-item-header-text';
       headingDiv.appendChild(label);
 
-      label.innerHTML = geoserverNameToCategoryName[categories[i]];
+
+      console.log(categories[i]);
+      console.log(this);
+      console.log(this.get("geoserverNameToCategoryName")[categories[i]]);
+      label.innerHTML = this.get("geoserverNameToCategoryName")[categories[i]];
+
 
       var bodyDiv = document.createElement('div');
       bodyDiv.className = 'panel-body';
