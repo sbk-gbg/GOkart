@@ -759,8 +759,8 @@ var EditPanelView = {
     }
 
     return (
-      <div>
         <Panel title="Editera lager" onCloseClicked={this.props.onCloseClicked} onUnmountClicked={this.props.onUnmountClicked} minimized={this.props.minimized} instruction={atob(this.props.model.get('instruction'))}>
+          <div>
           <div className="edit-tools">
             <div className="loading-bar">
               {loader}
@@ -771,9 +771,9 @@ var EditPanelView = {
             </ul>
             <AttributeEditor ref="attributeEditor" feature={this.state.editFeature} source={this.state.editSource} model={this.props.model} activeTool={this.state.activeTool} panel={this}/>
           </div>
+            {this.renderAlert()}
+          </div>
         </Panel>
-        {this.renderAlert()}
-      </div>
     );
   }
 };
