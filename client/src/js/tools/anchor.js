@@ -88,9 +88,6 @@ var AnchorModel = {
 
   generate: function () {
 
-    console.log("generating");
-    console.log(this);
-    console.log(this.get("firstTime"));
     if(this.get("firstTime")){
       this.set("anchor", "");
       this.set("firstTime", false);

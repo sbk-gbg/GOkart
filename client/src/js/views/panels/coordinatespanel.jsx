@@ -66,8 +66,7 @@ var CoordinatesList = React.createClass({
   getX: function (xyObject) {
     var numberOfgetX = Math.floor(xyObject.x);
     valOfgetX = numberOfgetX.toString().match(/(\d+?)(?=(\d{3})+(?!\d)|$)/g);
-    console.log("getX");
-    console.log(valOfgetX);
+
     return (
       <span>
         <strong>{ xyObject.xtitle }: </strong>  {valOfgetX[0] + " " + valOfgetX[1]}
@@ -78,8 +77,7 @@ var CoordinatesList = React.createClass({
   getY: function (xyObject) {
     var numberOfgetY = Math.floor(xyObject.y);
     valOfgetY = numberOfgetY.toString().match(/(\d+?)(?=(\d{3})+(?!\d)|$)/g);
-    console.log("getY");
-    console.log(valOfgetY);
+
     return (
       <span>
         <strong>{ xyObject.ytitle }: </strong> {valOfgetY[0] + " " + valOfgetY[1] + " " +valOfgetY[2]}
@@ -141,8 +139,6 @@ var CoordinatesList = React.createClass({
 
   render: function() {
     var coordinates = this.props.coordinates;
-    console.log("coordinates");
-    console.log(coordinates);
     return (
       <dl>
         { Object.keys(coordinates).map((key) => this.processRow(coordinates[key], key)) }

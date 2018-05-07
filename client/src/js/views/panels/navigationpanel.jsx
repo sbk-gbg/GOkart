@@ -103,7 +103,7 @@ var NavigationPanelView = {
       if (this.forced) {
             minimized = false;
         }
-        console.log("Setting minimized to " + minimized);
+
         if(minimized && isMobile){
           document.getElementById('sidebar-toggle-swipe').click();
         }

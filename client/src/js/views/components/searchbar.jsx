@@ -95,9 +95,6 @@ var SearchBarView = {
     var s = paramGet('s');
     var v = paramGet('v');
 
-    console.log("s V");
-    console.log(s);
-    console.log(v);
 
     if(s == null){
       this.props.model.set('filter', '*');

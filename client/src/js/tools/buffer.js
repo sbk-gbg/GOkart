@@ -178,8 +178,7 @@ var BufferModel = {
           this.set("geoserverNameToCategoryName", JSON.parse(this.get("geoserverNameToCategoryName")));
         } catch (e){
           this.set("geoserverNameToCategoryName", {});
-          console.log("Got error in parsing geoserverNameToCategoryName");
-          console.log(e);
+
       }
     }
   },
@@ -300,8 +299,7 @@ var BufferModel = {
       this.deActivateBufferMarker();
 // JSON?
       // var notFeatureLayers = ['150', '160', '170', '410', '420', '430', '440', '260', '310', '350', '360', '250', '230', '340', '330', '270', '280', '320', '325', '140', '220', '210'];
-      console.log("notFeatureLayers");
-      console.log(this.get("notFeatureLayers"));
+
       var activeLayers = [];
       for (var i = 0; i < this.get('layersCollection').length; i++) {
         if (this.get('layersCollection').models[i].getVisible() && this.get("notFeatureLayers").indexOf(this.get('layersCollection').models[i].id) != -1) {
@@ -425,8 +423,7 @@ var BufferModel = {
     }
     var categories = Object.keys(foundFeatures);
     categories.sort();
-    console.log("categories");
-    console.log(categories);
+
 
     var categoryPrefix = '<div class="panel panel-default layer-item"><div class="panel-heading unselectable"><label class="layer-item-header-text">';
     var endCategoryToStartLayers = '</label></div><div class="panel-body"><div class="legend"><div>';
@@ -463,9 +460,6 @@ var BufferModel = {
 
     var div = document.createElement('div');
 
-    console.log("geoserverNameToCategoryName");
-    console.log(this.get("geoserverNameToCategoryName"));
-
     for(var i = 0; i < categories.length; i++){
       var outerDiv = document.createElement('div');
       outerDiv.className = 'panel panel-default layer-item';
@@ -476,10 +470,6 @@ var BufferModel = {
       label.className = 'layer-item-header-text';
       headingDiv.appendChild(label);
 
-
-      console.log(categories[i]);
-      console.log(this);
-      console.log(this.get("geoserverNameToCategoryName")[categories[i]]);
       label.innerHTML = this.get("geoserverNameToCategoryName")[categories[i]];
 
 
