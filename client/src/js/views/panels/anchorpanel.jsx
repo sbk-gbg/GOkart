@@ -78,12 +78,9 @@ var AnchorPanelView = {
       <Panel title="Länk till karta" onUnmountClicked={this.props.onUnmountClicked} onCloseClicked={this.props.onCloseClicked} instruction={atob(this.props.model.get('instruction'))}>
         <div className="panel-content">
           <button onClick={this.generate} className="btn btn-main">Skapa länk</button><br/><br/>
-          <p>
-            När du har skapat en länk kan du kopiera länkadressen genom att högerklicka på "Länk" nedan.<br/>
-          </p>
           <div>
-            <input type="text" id="link" value={anchor}></input>&nbsp;&nbsp;
-              <a target="_blank" href={anchor}>Länk</a>
+            <input type="text" id="link" value={anchor}></input><br/>
+            <a target="_blank" className="linktext" href={anchor}>Öppna länk i nytt fönster</a>
           </div>
         </div>
       </Panel>
