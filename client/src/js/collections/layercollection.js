@@ -114,7 +114,7 @@ var LayerCollection = {
         "name": args.id,
         "caption": args.caption,
         "visible": args.visibleAtStart,
-        "opacity": 1,
+        "opacity": args.opacity || 1,
         "queryable": args.queryable === false ? false : true,
         "information": args.infobox,
         "resolutions": properties.mapConfig.resolutions,
@@ -145,6 +145,7 @@ var LayerCollection = {
         "infoTitle": args.infoTitle,
         "infoText": args.infoText,
         "infoUrl": args.infoUrl,
+        "infoUrlText": args.infoUrlText,
         "infoOwner": args.infoOwner
       }
     };
@@ -165,7 +166,7 @@ var LayerCollection = {
   mapExtendedWMSConfig: function (args, properties) {
     const createLegendConfig = (url, layer) => {
       let strippedUrl = url ? url.split("?")[0] : args.url;
-      let legendUrl = `${strippedUrl}?REQUEST=GetLegendGraphic&VERSION=${args.version}&FORMAT=image/png&WIDTH=32&HEIGHT=32&LAYER=${layer.name}`;
+      let legendUrl = `${strippedUrl}?REQUEST=GetLegendGraphic&VERSION=${args.version}&FORMAT=image/png&WIDTH=32&HEIGHT=32&LAYER=${layer.name}&STYLE=${layer.style}&legend_options=forceLabels:on`;
       let protocol = /^http/.test(legendUrl) ? '' : 'http://';
       
       return {
@@ -204,7 +205,13 @@ var LayerCollection = {
           "VERSION": args.singleTile || false ? '1.1.0': args.version, 
           "TILED": args.tiled,
           "INFO_FORMAT": args.infoFormat
-        }
+        },
+        "infoVisible": args.infoVisible || false,
+        "infoTitle": args.infoTitle,
+        "infoText": args.infoText,
+        "infoUrl": args.infoUrl,
+        "infoUrlText": args.infoUrlText,
+        "infoOwner": args.infoOwner
       }
     };
 
@@ -288,7 +295,13 @@ var LayerCollection = {
           "typename": args.layer,
           "srsname": args.projection,
           "bbox": ""
-        }
+        },
+        "infoVisible": args.infoVisible || false,
+        "infoTitle": args.infoTitle,
+        "infoText": args.infoText,
+        "infoUrl": args.infoUrl,
+        "infoUrlText": args.infoUrlText,
+        "infoOwner": args.infoOwner
       }
     };
 
@@ -330,6 +343,12 @@ var LayerCollection = {
           "Url": getLegendUrl(args),
           "Description" : "Teckenförklaring"
         }],
+        "infoVisible": args.infoVisible || false,
+        "infoTitle": args.infoTitle,
+        "infoText": args.infoText,
+        "infoUrl": args.infoUrl,
+        "infoUrlText": args.infoUrlText,
+        "infoOwner": args.infoOwner
       }
     };
 

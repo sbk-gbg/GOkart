@@ -111,7 +111,7 @@ SearchResultGroup = {
       $('.search-results').find('.selected').each(function (e) {
         $(this).removeClass('selected');
       });
-      this.props.model.focus(item);
+      this.props.model.focus(item, this.props.isBar == "yes");
     }
 
     if (!shiftIsDown) {
@@ -123,8 +123,12 @@ SearchResultGroup = {
 
     if (isMobile) {
       if (this.props.parentView) {
-        if (this.props.parentView.props.navigationPanel) {
+        if (this.props.parentView.props.navigationPanel) { // if searchPanel
           this.props.parentView.props.navigationPanel.minimize();
+        } else if(this.props.isBar){ // if searchbar
+          this.props.parentView.setState({
+            minimized: true
+          });
         }
       }
     }

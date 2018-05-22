@@ -20,8 +20,6 @@
 //
 // https://github.com/hajkmap/Hajk
 
-var LocalStorageMixin = require('react-localstorage');
-
 var Panel = require('views/panel');
 
 var ExportTiffSettings = React.createClass({
@@ -92,9 +90,7 @@ var ExportTiffSettings = React.createClass({
 });
 
 var ExportPdfSettings = React.createClass({
-  //mixins: [LocalStorageMixin], //lagrar skala, pappersformat etc. i LocalStorage
-
-  resolutions: [72, 96, 150, 200, 300],
+  resolutions: [72, 96, 150, 200],
   paperFormats: ["A3", "A4"],
 
   getInitialState: function() {
@@ -142,10 +138,19 @@ var ExportPdfSettings = React.createClass({
     var width  = pageSize(this.getFormat()).width
     ,   height = pageSize(this.getFormat()).height;
 
-    return {
-      width: ((width / 25.4)),
-      height:  ((height / 25.4))
-    };
+    if(this.props.model.get("layout") == 2){
+      // The "Varberg" version has four percent margins. If the value is changed in mapservice, it has to be
+      // changed here too.
+      return {
+        width: ((width / 25.4)) * (1 - 0.04 * 2),
+        height:  ((height / 25.4)) * (1 - 0.04 * 2)
+      }
+    } else {
+      return {
+        width: ((width / 25.4)),
+        height:  ((height / 25.4))
+      }
+    }
   },
 
   getPreviewPaperMeasures: function() { 
@@ -302,14 +307,7 @@ var ExportPdfSettings = React.createClass({
   },
 
   componentWillUnmount: function () {
-    //this.savePreviewCenterToLocalStorage(this.props.model.getPreviewCenter());
     this.removePreview();
-  },
-
-  savePreviewCenterToLocalStorage: function(center) {
-    var _ExportPdfSettings = JSON.parse(localStorage.ExportPdfSettings);
-    _ExportPdfSettings.center = this.props.model.getPreviewCenter();
-    localStorage.ExportPdfSettings = JSON.stringify(_ExportPdfSettings);
   },
 
   render: function () {
@@ -331,20 +329,28 @@ var ExportPdfSettings = React.createClass({
     options = scales.map((s, i) => <option key={i} value={s}>1:{s}</option>);
 
     resolutionOptions = this.resolutions.map((s, i) => {
-      if (this.state.selectFormat === 'A3') {
+      if (this.state.selectFormat === 'A2') {
         return s !== 300 
           ? <option key={i} value={s}>{s}</option>
           : <option key={i} value={s} disabled>{s}</option>;
-        } else {
+      } else if(this.state.selectFormat === 'A3'){
+        return s !== 200
+          ? <option key={i} value={s}>{s}</option>
+          : <option key={i} value={s} disabled>{s}</option>;
+      }else {
           return <option key={i} value={s}>{s}</option>;
         }
       });
     paperFormatOptions = this.paperFormats.map((s, i) => {
       if (this.state.selectResolution === '300') {
+        return s !== 'A2'
+          ? <option key={i} value={s}>{s}</option>
+          : <option key={i} value={s} disabled>{s}</option>;
+      } else if(this.state.selectResolution === '200'){
         return s !== 'A3'
           ? <option key={i} value={s}>{s}</option>
           : <option key={i} value={s} disabled>{s}</option>;
-        } else {
+      }else {
           return <option key={i} value={s}>{s}</option>;
         }
     });

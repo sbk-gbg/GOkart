@@ -84,6 +84,7 @@ var SelectionPanelView = {
           <button onClick={() => this.activateTool('drawSelection')} type="button" className={this.getClassNames('drawSelection')} title="Markera efter polygon" >
             <i className="fa iconmoon-yta icon"></i>
           </button>
+
         </div>
         <div className="btn btn-link" onClick={(e) => {
             e.preventDefault();

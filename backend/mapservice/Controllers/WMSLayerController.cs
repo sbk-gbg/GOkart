@@ -16,11 +16,12 @@ namespace MapService.Controllers
             {
                 this.settingsDataContext.AddWMSLayer(config);
             }
-            catch (System.Exception e)
+            catch(System.Exception e)
             {
-                _log.Fatal(e);
+                _log.Fatal(e.Message);
                 throw;
             }
+            
         }
 
         public void Delete(string id)

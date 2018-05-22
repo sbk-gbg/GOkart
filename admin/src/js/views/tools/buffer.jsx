@@ -27,7 +27,11 @@ var defaultState = {
   validationErrors: [],
   active: false,
   index: 0,
-  instruction: ""
+  instruction: "",
+  varbergVer: false,
+  geoserverUrl: "",
+  notFeatureLayers: [],
+  geoserverNameToCategoryName: {}
 };
 
 class ToolOptions extends Component {
@@ -46,7 +50,11 @@ class ToolOptions extends Component {
       this.setState({
         active: true,
         index: tool.index,
-        instruction: tool.options.instruction
+        instruction: tool.options.instruction,
+        varbergVer: tool.options.varbergVer,
+        geoserverUrl: tool.options.geoserverUrl,
+        notFeatureLayers: tool.options.notFeatureLayers ? tool.options.notFeatureLayers : [],
+        geoserverNameToCategoryName: tool.options.geoserverNameToCategoryName
       });
     } else {
       this.setState({
@@ -64,11 +72,15 @@ class ToolOptions extends Component {
   }
 
   handleInputChange(event) {
-    const target = event.target;
-    const name = target.name;
+    var target = event.target;
+    var name = target.name;
     var value = target.type === 'checkbox' ? target.checked : target.value;
     if (typeof value === "string" && value.trim() !== "") {
       value = !isNaN(Number(value)) ? Number(value) : value
+    }
+
+    if(name == "instruction"){
+      value = btoa(value);
     }
     this.setState({
       [name]: value
@@ -105,7 +117,11 @@ class ToolOptions extends Component {
       "type": this.type,
       "index": this.state.index,
       "options": {
-        "instruction": this.state.instruction
+        "instruction": this.state.instruction,
+        "varbergVer": this.state.varbergVer,
+        "geoserverUrl": this.state.geoserverUrl,
+        "notFeatureLayers": this.state.notFeatureLayers,
+        "geoserverNameToCategoryName": this.state.geoserverNameToCategoryName
       }
     };
 
@@ -146,6 +162,25 @@ class ToolOptions extends Component {
     }
   }
 
+
+  //notFeatureLayers, geoserverNameToCategoryName
+  handleAuthGrpsChange(event) {
+    const target = event.target;
+    const value = target.value;
+    let groups = [];
+
+    try {
+      groups = value.split(",");
+      console.log("split value");
+    } catch (error) {
+      console.log(`Någonting gick fel: ${error}`);
+    }
+
+    this.setState({
+      notFeatureLayers: value !== "" ? groups : []
+    });
+  }
+
   /**
    *
    */
@@ -175,13 +210,51 @@ class ToolOptions extends Component {
               value={this.state.index}/>
           </div>
           <div>
-            <label htmlFor="instruction">Instruktioner</label>
-            <input
+            <label htmlFor="instruction">Instruktion</label>
+            <textarea
+              type="text"
               id="instruction"
               name="instruction"
-              type="text"
               onChange={(e) => {this.handleInputChange(e)}}
-              value={this.state.instruction}/>
+              value={this.state.instruction ? atob(this.state.instruction) : ""}
+            />
+          </div>
+          <div>
+            <input
+              id="varbergVer"
+              name="varbergVer"
+              type="checkbox"
+              onChange={(e) => {this.handleInputChange(e)}}
+              checked={this.state.varbergVer}/>&nbsp;
+            <label htmlFor="varbergVer">Varbergs version</label>
+          </div>
+          <div>
+            <label htmlFor="geoserverUrl">geoserverUrl</label>
+            <input
+              type="text"
+              id="geoserverUrl"
+              name="geoserverUrl"
+              onChange={(e) => {this.handleInputChange(e)}}
+              value={this.state.geoserverUrl}
+            />
+          </div>
+          <div>
+            <label htmlFor="notFeatureLayers">notFeatureLayers</label>
+            <textarea id="notFeatureLayers"
+                   value={this.state.notFeatureLayers}
+                   type="text"
+                   name="notFeatureLayers"
+                   onChange={(e) => {this.handleAuthGrpsChange(e)}}>
+            </textarea>
+          </div>
+          <div>
+            <label htmlFor="geoserverNameToCategoryName">geoserverNameToCategoryName</label>
+            <textarea id="geoserverNameToCategoryName"
+                   value={this.state.geoserverNameToCategoryName}
+                   type="text"
+                   name="geoserverNameToCategoryName"
+                   onChange={(e) => {this.handleInputChange(e)}}>
+            </textarea>
           </div>
         </form>
       </div>

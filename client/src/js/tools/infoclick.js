@@ -189,15 +189,30 @@ var InfoClickModel = {
             resolve();
           },
           success: (features, layer) => {
+      var arr = new Array();
             if (Array.isArray(features) && features.length > 0) {
               features.forEach(feature => {
                 this.addInformation(feature, wmsLayer, (featureInfo) => {
-                  try{ // TODO: solkarta
-                    if (wmsLayer.attributes.caption === "Solkartan" && featureInfo.feature.get('geometry') === null){
-                      return;
+                    try{ // TODO: solkarta
+                      if (wmsLayer.attributes.caption === "Solkartan" && featureInfo.feature.get('geometry') === null){
+                        return;
+                      }
+                      if (wmsLayer.attributes.caption === "Geografiska områden" && featureInfo.feature.get('omrade') === null){
+                        return;
+                      }
+                      if (wmsLayer.attributes.caption === "Stadsutvecklingsprojektet"){
+                        arr.push(featureInfo.feature.get('id'));
+                          for(i=0; i<arr.length; i++) {
+                            if (arr.slice(0,i-1).includes(featureInfo.feature.get('id'))) {
+                              return;
+                            }
+                          }
+
                     }
-                  } catch (e){
-                  }
+
+                    } catch (e){
+                    }
+
                   if (featureInfo) {
                     infos.push(featureInfo);
                   }
@@ -219,6 +234,14 @@ var InfoClickModel = {
         var s1 = a.information.layerindex
         ,   s2 = b.information.layerindex
         ;
+
+        // Detaljplaner should be sorted on antagen instead of layerindex
+        if(typeof a.information.antagen !== "undefined" &&
+        typeof b.information.antagen !== "undefined"){
+          s1 = a.information.antagen;
+          s2 = b.information.antagen;
+        }
+
         return s1 === s2 ? 0 : s1 < s2 ? 1 : -1;
       });
 
@@ -407,6 +430,7 @@ var InfoClickModel = {
     ,   properties
     ,   information
     ,   iconUrl = feature.get('iconUrl') || ''
+    ,   antagen = false
     ;
    
     properties = feature.getProperties();
@@ -416,23 +440,68 @@ var InfoClickModel = {
       information = feature.infobox;
       information = information.replace(/export:/g, '');
     }
+    // Detaljplaner:300(idNummer)
+    if(layer.get("name") !== "300") {
+      if (information && typeof information === "string") {
+        (information.match(/\{.*?\}\s?/g) || []).forEach(property => {
+          function lookup(o, s)
+        {
+          s = s.replace('{', '')
+            .replace('}', '')
+            .trim()
+            .split('.');
 
-    if (information && typeof information === "string") {
-      (information.match(/\{.*?\}\s?/g) || []).forEach(property => {
-          function lookup(o, s) {
-            s = s.replace('{', '')
-                 .replace('}', '')
-                 .trim()
-                 .split('.');
-
-            switch (s.length) {
-              case 1: return o[s[0]] || "";
-              case 2: return o[s[0]][s[1]] || "";
-              case 3: return o[s[0]][s[1]][s[2]] || "";
-            }
+          switch (s.length) {
+            case 1:
+              return o[s[0]] || "";
+            case 2:
+              return o[s[0]][s[1]] || "";
+            case 3:
+              return o[s[0]][s[1]][s[2]] || "";
           }
-          information = information.replace(property, lookup(properties, property));
+        }
+        information = information.replace(property, lookup(properties, property));
       });
+      }
+    }else {
+      //Allow multiple URLs "Detaljplaner"
+      if (information && typeof information === "string") {
+        (information.match(/\{.*?\}\s?/g) || []).forEach(property => {
+          function lookup(o, s)
+        {
+          s = s.replace('{', '')
+            .replace('}', '')
+            .trim()
+            .split('.');
+
+          switch (s.length) {
+            case 1:
+              return o[s[0]] || "";
+            case 2:
+              return o[s[0]][s[1]] || "";
+            case 3:
+              return o[s[0]][s[1]][s[2]] || "";
+          }
+        }
+        if(property.includes("{antagen}")){
+          antagen = lookup(properties, property);
+        }
+        if (property.substring(1, 4) == "url" && lookup(properties, property).length > 0) {
+            if(property.substring(5,6) == ""){
+              var val = '<tr><td> <strong>PDF-dokument</strong> </td>\n' +
+                '<td> <a href=\"' + lookup(properties, property) + '\" target=\"_blank\"> Öppna detaljplanen i nytt fönster </a> </td></tr>'
+            }else{
+              var val = '<tr><td></td>\n' +
+              '<td> <a href=\"' + lookup(properties, property) + '\" target=\"_blank\">del ' + property.substring(5, 6) + '</a> </td></tr>'
+            }
+
+          information = information.replace(property, val);
+        } else {
+          information = information.replace(property, lookup(properties, property));
+        }
+
+      });
+      }
     }
 
     if (!layerModel) {
@@ -443,16 +512,23 @@ var InfoClickModel = {
         : 999;
     }
 
-    callback({
+    var retObj = {
       feature: feature,
       layer: layer,
       information: {
-          caption: layerModel && layerModel.getCaption() || "Sökträff",
-          layerindex: layerindex,
-          information: information || properties,
-          iconUrl: iconUrl,
+        caption: layerModel && layerModel.getCaption() || "Sökträff",
+        layerindex: layerindex,
+        information: information || properties,
+        iconUrl: iconUrl,
       }
-    });
+    };
+
+    // used for sorting detaljplaner
+    if(antagen !== false){
+      retObj.information.antagen = antagen;
+    }
+
+    callback(retObj);
   },
 
   /**

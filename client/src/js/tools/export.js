@@ -73,7 +73,8 @@ var ExportModelProperties = {
   base64Encode: false,
   autoScale: false,
   instruction: "",
-  scales: [250, 500, 1000, 2500, 5000, 10000, 25000, 50000, 100000, 250000]
+  scales: [250, 500, 1000, 2500, 5000, 10000, 25000, 50000, 100000, 250000],
+  layout: 2 // TODO: change to 1
 };
 
 /**
@@ -782,7 +783,7 @@ var ExportModel = {
 
     this.set("downloadingPdf", true);
     var dataString = '';
-    if (this.get('base64Encode')){
+    if (this.get('base64Encode')){ // base64 here
       dataString = btoa(JSON.stringify(data));
     } else {
       dataString = JSON.stringify(data);
@@ -852,7 +853,7 @@ var ExportModel = {
     data.proxyUrl = this.get('proxyUrl');
     this.set("downloadingTIFF", true);
     var dataString = '';
-    if (this.get('base64Encode')){
+    if (this.get('base64Encode')){ // base64 here
       dataString = btoa(JSON.stringify(data));
     } else {
       dataString = JSON.stringify(data);

@@ -42,7 +42,8 @@ var AnchorModelProperties = {
   visible: false,
   shell: undefined,
   anchor: "",
-  instruction: ''
+  instruction: '',
+  firstTime: true,
 }
 
 /**
@@ -54,6 +55,7 @@ var AnchorModelProperties = {
  * @augments {external:"Backbone.Model"}
  * @param {AnchorModel~AnchorModelProperties} options - Default options
  */
+
 var AnchorModel = {
   /**
    * @instance
@@ -82,24 +84,36 @@ var AnchorModel = {
    * @instance
    * @return {string} anchor
    */
+
+
   generate: function () {
 
-    var a = document.location.protocol + "//" + document.location.host + document.location.pathname
-    ,   map = this.get("map")
-    ,   olMap = map.getMap()
-    ,   layers = this.get("layers")
+    if(this.get("firstTime")){
+      this.set("anchor", "");
+      this.set("firstTime", false);
+    }else {
+      var a = document.location.protocol + "//" + document.location.host + document.location.pathname
+        , map = this.get("map")
+        , olMap = map.getMap()
+        , layers = this.get("layers")
 
-    ,   c = olMap.getView().getCenter()
-    ,   z = olMap.getView().getZoom()
-    ,   x = c[0]
-    ,   y = c[1]
-    ,   l = layers.filter(layer => layer.getVisible() === true)
-                  .map(layer => encodeURIComponent(layer.getName())).join(',');
+        , c = olMap.getView().getCenter()
+        , z = olMap.getView().getZoom()
+        , x = c[0]
+        , y = c[1]
+        , l = layers.filter(layer => layer.getVisible() === true
+    )
+    .
+      map(layer => encodeURIComponent(layer.getName())
+    ).
+      join(',');
 
-    a += `?m=${HAJK2.configFile}&x=${x}&y=${y}&z=${z}&l=${l}`;
-    this.set("anchor", a);
+      a += `?m=${HAJK2.configFile}&x=${x}&y=${y}&z=${z}&l=${l}`;
+      this.set("anchor", a);
 
-    return a;
+      return a;
+
+    }
   },
 
   /**
@@ -116,6 +130,8 @@ var AnchorModel = {
   clicked: function (arg) {
     this.set('visible', true);    
     this.set('toggled', !this.get('toggled'));
+    this.set("firstTime", true);
+
 
   }
 };

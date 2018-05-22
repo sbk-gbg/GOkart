@@ -4,9 +4,12 @@ using System.Drawing;
 using SharpMap;
 using SharpMap.Layers;
 using SharpMap.Rendering;
+using log4net;
 
 namespace MapService.Components.MapExport.SharpMapExtensions {
-    public class LayerCollectionRendererThrowsException : LayerCollectionRenderer {
+    public class LayerCollectionRendererThrowsException : LayerCollectionRenderer
+    {
+        static ILog _log = LogManager.GetLogger(typeof(LayerCollectionRendererThrowsException));
         public LayerCollectionRendererThrowsException(ICollection<ILayer> layers) : base(layers)
         {
         }
@@ -23,12 +26,16 @@ namespace MapService.Components.MapExport.SharpMapExtensions {
         public static void RenderLayer(ILayer layer, Graphics g, Map map) {
             try 
             {
+                _log.Debug("RenderLayer");
                 layer.Render(g, map);
+                _log.Debug("Layer rendered");
             }
             catch (Exception ex) 
             {
+                _log.Debug("Exception was " + ex.Message);
                 if (ContinueOnError(layer))
                 {
+                    _log.Debug("Continuing");
                     using (Pen pen = new Pen(Color.Red, 4f))
                     {
                         Size size = map.Size;
@@ -46,9 +53,11 @@ namespace MapService.Components.MapExport.SharpMapExtensions {
 
         private static bool ContinueOnError(ILayer layer)
         {
+            _log.Debug("ContinueOnError");
             WmsLayer wmsLayer = layer as WmsLayer;
             if (wmsLayer != null)
             {
+                _log.Debug("wmsLayer" + wmsLayer.LayerName);
                 return wmsLayer.ContinueOnError;
             }
             return true;

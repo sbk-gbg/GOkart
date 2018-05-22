@@ -123,8 +123,7 @@ var SearchView = {
     this.props.model.set('value', "");
     this.props.model.set('searchTriggered', false);
     this.props.model.clear();
-
-    if(typeof $("#snabbsokRensa") !== "undefined"){
+    if(!isMobile && typeof $("#snabbsokRensa") !== "undefined") {
       $("#snabbsokRensa").click();
     }
 
@@ -138,7 +137,7 @@ var SearchView = {
       result: []
     });
 
-    if ($('#searchbar-input-field').length != 0){
+    if (!isMobile && $('#searchbar-input-field').length != 0){
       $('#searchbar-input-field')[0].value = ""
     }
   },
@@ -193,7 +192,7 @@ var SearchView = {
           state.loading = true;
         }
         this.setState(state);
-      });
+      }, false);
     }, 200);
   },
 
@@ -339,6 +338,7 @@ var SearchView = {
                 var id = "group-" + i;
                 return (
                   <SearchResultGroup
+                        isBar="no"
                         id={id}
                         key={id}
                         result={item}
@@ -364,10 +364,9 @@ var SearchView = {
    * @return {external:ReactElement}
    */
   render: function () {
-
     var results = null
     ,   value = this.props.model.get('value')
-    ,   showResults = this.props.model.shouldRenderResult()
+    ,   showResults = this.props.model.shouldRenderResult(false)
     ,   options = this.renderOptions();
 
     if (showResults) {
@@ -408,6 +407,9 @@ var SearchView = {
           loading: false
         });
       }
+
+      this.props.model.set("downloading", null);
+      this.props.model.set("url", null);
     };
 
     var search_on_click = (event) => {
@@ -416,6 +418,9 @@ var SearchView = {
       });
       this.props.model.set('force', true);
       this.search();
+
+      this.props.model.set("downloading", null);
+      this.props.model.set("url", null);
     };
 
     var selectionToolbar = this.props.model.get('selectionTools')
@@ -442,6 +447,7 @@ var SearchView = {
           </div>
           <div className="clearfix">
             <span className="info-text clearfix">Inled sökningen med * för att söka på delar av en text.</span>
+            <span className="info-text clearfix">Obs: Max 1000 sökträffar kan visas.</span>
           </div>
         </div>
         <button onClick={search_on_click} type="submit" className="btn btn-main">Sök</button>&nbsp;

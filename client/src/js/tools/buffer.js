@@ -46,7 +46,11 @@ var BufferModelProperties = {
   marker: undefined,
   markerPos: undefined,
   popupHighlight: undefined,
-  instruction: ''
+  instruction: '',
+  varbergVer: false,
+  geoserverUrl: '',
+  notFeatureLayers: [],
+  geoserverNameToCategoryName: {}
 }
 
 /**
@@ -99,63 +103,84 @@ var BufferModel = {
 
     this.set('map', shell.getMap());
     this.set('olMap', shell.getMap().getMap());
-    this.set('layersWithNames', shell.attributes.layers);
-    this.set('layersCollection', shell.getLayerCollection());
 
-    this.set('bufferLayer', new ol.layer.Vector({
-      source: new ol.source.Vector(),
-      name: 'buffer-layer',
-      queryable: false,
-      style: this.getDefaultStyle()
-    }));
+    if(!this.get('varbergVer')){
+      this.set('layers', shell.getLayerCollection());
 
-    this.set('style_marker', new ol.style.Style({
-      image: new ol.style.Icon({
-        anchor: [0.5, 0.5],
-        anchorXUnits: 'fraction',
-        anchorYUnits: 'fraction',
-        opacity: .8,
-        src: 'assets/icons/dot_marker_blue.png',
-        scale: (0.5)
-      })
-    }));
-
-    this.set('markerlayer', new ol.layer.Vector({
-      source: new ol.source.Vector(),
-      name: 'bufferMarkerLayer',
-      queryable: false,
-      style: this.get('style_marker')
-    }));
-
-    // popupHighlight style
-    this.set('style_popup', new ol.style.Style({
-      image: new ol.style.Icon({
-        anchor: [0.5, 0.5],
-        anchorXUnits: 'fraction',
-        anchorYUnits: 'fraction',
-        opacity: 1.0,
-        src: 'assets/icons/Ikon_på_buffert.png',
-        scale: (1.5)
-      })
-    }));
-
-    this.set("layer_popup", new ol.layer.Vector({
+      this.set('bufferLayer', new ol.layer.Vector({
         source: new ol.source.Vector(),
-        name: "popupHighlight",
+        name: 'buffer-layer',
+        style: this.getDefaultStyle()
+      }));
+
+      this.get('olMap').addLayer(this.get('bufferLayer'));
+    }else {
+      this.set('layersWithNames', shell.attributes.layers);
+      this.set('layersCollection', shell.getLayerCollection());
+
+      this.set('bufferLayer', new ol.layer.Vector({
+        source: new ol.source.Vector(),
+        name: 'buffer-layer',
         queryable: false,
-        style: this.get('style_popup')
-      })
-    );
+        style: this.getDefaultStyle()
+      }));
 
-    this.get('olMap').addLayer(this.get('bufferLayer'));
-    this.get('olMap').addLayer(this.get('markerlayer'));
-    this.get('olMap').addLayer(this.get('layer_popup'));
+      this.set('style_marker', new ol.style.Style({
+        image: new ol.style.Icon({
+          anchor: [0.5, 0.5],
+          anchorXUnits: 'fraction',
+          anchorYUnits: 'fraction',
+          opacity: .8,
+          src: 'assets/icons/dot_marker_blue.png',
+          scale: (0.5)
+        })
+      }));
 
+      this.set('markerlayer', new ol.layer.Vector({
+        source: new ol.source.Vector(),
+        name: 'bufferMarkerLayer',
+        queryable: false,
+        style: this.get('style_marker')
+      }));
+
+      // popupHighlight style
+      this.set('style_popup', new ol.style.Style({
+        image: new ol.style.Icon({
+          anchor: [0.5, 0.5],
+          anchorXUnits: 'fraction',
+          anchorYUnits: 'fraction',
+          opacity: 1.0,
+          src: 'assets/icons/Ikon_på_buffert.png',
+          scale: (1.5)
+        })
+      }));
+
+      this.set("layer_popup", new ol.layer.Vector({
+          source: new ol.source.Vector(),
+          name: "popupHighlight",
+          queryable: false,
+          style: this.get('style_popup')
+        })
+      );
+
+      this.get('olMap').addLayer(this.get('bufferLayer'));
+      this.get('olMap').addLayer(this.get('markerlayer'));
+      this.get('olMap').addLayer(this.get('layer_popup'));
+    }
 
     this.set('selectionModel', new SelectionModel({
       map: this.get('olMap'),
       layerCollection: shell.getLayerCollection()
     }));
+
+    if(typeof this.get("geoserverNameToCategoryName") === "string"){
+        try {
+          this.set("geoserverNameToCategoryName", JSON.parse(this.get("geoserverNameToCategoryName")));
+        } catch (e){
+          this.set("geoserverNameToCategoryName", {});
+
+      }
+    }
   },
 
   activateBufferMarker: function(){
@@ -228,54 +253,93 @@ var BufferModel = {
    * @instance
    */
   buffer: function() {
+    if (!this.get('varbergVer')) {
+      const parser = new jsts.io.OL3Parser();
+      const features = this.get('selectionModel').features;
+      const dist = this.get('bufferDist');
 
-    if (this.get('marker') === undefined){
-      return false;
-    }
-
-    this.deActivateBufferMarker();
-
-    var notFeatureLayers = ['150', '160', '170', '410', '420', '430', '440', '260', '310', '350', '360', '250', '230', '340', '330', '270', '280', '320', '325', '140', '220', '210'];
-    var activeLayers = [];
-    for(var i = 0; i < this.get('layersCollection').length; i++){
-      if(this.get('layersCollection').models[i].getVisible() && notFeatureLayers.indexOf(this.get('layersCollection').models[i].id) != -1){
-        activeLayers.push(this.get('layersCollection').models[i]);
+      if (!this.isNumber(dist)) {
+        return false;
       }
-    }
 
-    var activeNames = [];
-    for(var i = 0; i < activeLayers.length; i++){
-      for(var j = 0; j < this.get('layersWithNames').length; j++){
-        if(activeLayers[i].id == this.get('layersWithNames')[j].id){
-          activeNames.push(this.get('layersWithNames')[j].layers[0]);
+      var buffered = Object.keys(features).map(key => {
+
+        var feature = features[key]
+        , olf = new ol.Feature()
+        , olGeom = feature.getGeometry()
+        , jstsGeom
+        , buff
+      ;
+
+      if (olGeom instanceof ol.geom.Circle) {
+        olGeom = ol.geom.Polygon.fromCircle(olGeom, 0b10000000);
+      }
+
+      jstsGeom = parser.read(olGeom);
+      buff = jstsGeom.buffer(dist);
+      olf.setGeometry(parser.write(buff));
+      olf.setStyle(this.getDefaultStyle());
+      olf.setId(Math.random() * 1E20);
+
+      return olf;
+    })
+      ;
+
+      if (buffered) {
+        this.get('bufferLayer').getSource().addFeatures(buffered);
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      if (this.get('marker') === undefined) {
+        return false;
+      }
+
+      this.deActivateBufferMarker();
+// JSON?
+      // var notFeatureLayers = ['150', '160', '170', '410', '420', '430', '440', '260', '310', '350', '360', '250', '230', '340', '330', '270', '280', '320', '325', '140', '220', '210'];
+
+      var activeLayers = [];
+      for (var i = 0; i < this.get('layersCollection').length; i++) {
+        if (this.get('layersCollection').models[i].getVisible() && this.get("notFeatureLayers").indexOf(this.get('layersCollection').models[i].id) != -1) {
+          activeLayers.push(this.get('layersCollection').models[i]);
         }
       }
-    }
+
+      var activeNames = [];
+      for (var i = 0; i < activeLayers.length; i++) {
+        for (var j = 0; j < this.get('layersWithNames').length; j++) {
+          if (activeLayers[i].id == this.get('layersWithNames')[j].id) {
+            activeNames.push(this.get('layersWithNames')[j].layers[0]);
+          }
+        }
+      }
 
 
-    var lonlat = ol.proj.transform(this.get('marker').getGeometry().getCoordinates(), 'EPSG:3007', 'EPSG:4326');
-    var lon = lonlat[0];
-    var lat = lonlat[1];
+      var lonlat = ol.proj.transform(this.get('marker').getGeometry().getCoordinates(), 'EPSG:3007', 'EPSG:4326');
+      var lon = lonlat[0];
+      var lat = lonlat[1];
 
-    var circle = new ol.geom.Circle(this.get('marker').getGeometry().getCoordinates(), Number(this.get('bufferDist')));
+      var circle = new ol.geom.Circle(this.get('marker').getGeometry().getCoordinates(), Number(this.get('bufferDist')));
 
-    var circleFeature = new ol.Feature(circle);
+      var circleFeature = new ol.Feature(circle);
 
-    this.get('bufferLayer').getSource().clear();
-    this.get('bufferLayer').getSource().addFeature(circleFeature);
-    circleFeature.setStyle(this.getDefaultStyle());
+      this.get('bufferLayer').getSource().clear();
+      this.get('bufferLayer').getSource().addFeature(circleFeature);
+      circleFeature.setStyle(this.getDefaultStyle());
 
 
+      document.getElementById('visibleLayerList').innerHTML = '';
+      if (activeNames.length == 0) {
+        return true;
+      }
 
-    document.getElementById('visibleLayerList').innerHTML = '';
-    if(activeNames.length == 0){
+
+      this.getFeaturesWithinRadius(activeNames);
+
       return true;
     }
-
-
-    this.getFeaturesWithinRadius(activeNames);
-
-    return true;
   },
 
   createWFSQuery: function(typeName, radius, coordStr){
@@ -323,9 +387,10 @@ var BufferModel = {
 
     var wfsRequset = requestPrefix + queries + requestSuffix;
 
+
     // Do Ajax call
     $.ajax({
-      url: '/geoserver/varberg/wms',
+      url: this.get("geoserverUrl"),
       contentType: 'text/xml',
       crossDomain: true,
       type: 'post',
@@ -359,11 +424,13 @@ var BufferModel = {
     var categories = Object.keys(foundFeatures);
     categories.sort();
 
+
     var categoryPrefix = '<div class="panel panel-default layer-item"><div class="panel-heading unselectable"><label class="layer-item-header-text">';
     var endCategoryToStartLayers = '</label></div><div class="panel-body"><div class="legend"><div>';
     var categorySuffix = '</div></div></div></div>';
 
-    var geoserverNameToCategoryName = {
+    /*
+      var geoserverNameToCategoryName = {
       'forskolor': 'Förskola',
       'grundskolor': 'Grundskola',
       'gymnasieskolor': 'Gymnasieskolor',
@@ -381,13 +448,14 @@ var BufferModel = {
       'turistbyran': 'Turistbyrå',
       'atervinningsstationer': 'Återvinningsstationer',
       'atervinningscentraler': 'Återvinningscentraler',
-      'detaljplaner': 'Detljplaner',
+      'detaljplaner': 'Detaljplaner',
       'fornybar_energi': 'Förnybar energi',
       'cykelservicestallen': 'Cykelservice',
       'laddplatser': 'Laddplatser',
       'parkering_punkt': 'Parkeringsplatser',
       'polisstationer': 'Polisstation'
     };
+    */
 
 
     var div = document.createElement('div');
@@ -402,7 +470,8 @@ var BufferModel = {
       label.className = 'layer-item-header-text';
       headingDiv.appendChild(label);
 
-      label.innerHTML = geoserverNameToCategoryName[categories[i]];
+      label.innerHTML = this.get("geoserverNameToCategoryName")[categories[i]];
+
 
       var bodyDiv = document.createElement('div');
       bodyDiv.className = 'panel-body';
@@ -448,16 +517,21 @@ var BufferModel = {
 
   },
 
+  clearSelection: function() {
+   this.get('selectionModel').clearSelection();
+  },
 
   clearBuffer: function() {
-    this.deActivateBufferMarker();
     this.get('bufferLayer').getSource().clear();
-    this.get('markerlayer').getSource().clear();
-    this.get('layer_popup').getSource().clear();
-    this.set('marker', undefined);
-    this.set('popupHighlight', undefined);
-    document.getElementById('visibleLayerList').innerHTML = '';
 
+    if(this.get('varbergVer')) {
+      this.deActivateBufferMarker();
+      this.get('markerlayer').getSource().clear();
+      this.get('layer_popup').getSource().clear();
+      this.set('marker', undefined);
+      this.set('popupHighlight', undefined);
+      document.getElementById('visibleLayerList').innerHTML = '';
+    }
   },
 
   /**

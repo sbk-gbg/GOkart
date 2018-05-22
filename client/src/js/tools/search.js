@@ -28,6 +28,7 @@ var SearchModelProperties = {
   title: 'Sök i kartan',
   visible: false,
   value: "",
+  valueBar: "",
   filter: "*",
   filterVisibleActive: false,
   markerImg: "assets/icons/marker.png",
@@ -44,6 +45,7 @@ var SearchModelProperties = {
   maxZoom: 14,
   exportUrl: "",
   displayPopup: false,
+  displayPopupBar: false,
   hits: [],
   popupOffsetY: 0
 };
@@ -66,6 +68,7 @@ var SearchModel = {
   },
 
   configure: function (shell) {
+    this.set('displayPopupBar', isMobile ? false : this.get('displayPopup'));
     this.set('layerCollection', shell.getLayerCollection());
     this.set('map', shell.getMap().getMap());
     this.featureLayer = new ol.layer.Vector({
@@ -118,6 +121,9 @@ var SearchModel = {
   getPropertyFilter: function (props) {
     var multipleAttributes = props.propertyName.split(',').length > 1;
     var conditions = props.propertyName.split(',').reduce((condition, property) => {
+
+      props.value.indexOf("\\") >= 0 ? props.value = props.value.replace(/\\/g, "\\\\") : props.value;
+      
       if (props.value) {
         return condition += `
           <ogc:PropertyIsLike matchCase="false" wildCard="*" singleChar="." escapeChar="!">
@@ -276,6 +282,12 @@ var SearchModel = {
     } else {
       filters = "";
     }
+
+    var typeName = `'${props.featureType}'`;
+    if(!typeName.includes(':')) { // If no namespace, add "feature:"
+      typeName = `'feature:${props.featureType}'`;
+    } 
+  
     str = `
      <wfs:GetFeature
          service = 'WFS'
@@ -288,7 +300,7 @@ var SearchModel = {
          xsi:schemaLocation='http://www.opengis.net/wfs ../wfs/1.1.0/WFS.xsd'
          outputFormat="${outputFormat}"
          maxFeatures="1000">
-         <wfs:Query typeName='feature:${props.featureType}' srsName='${props.srsName}'>
+         <wfs:Query typeName=` + typeName + ` srsName='${props.srsName}'>
           <ogc:Filter>
             ${filters}
           </ogc:Filter>
@@ -343,6 +355,7 @@ var SearchModel = {
     }
     this.featureLayer.getSource().clear();
     this.set('items', []);
+    this.set('barItems', []);
     if (ovl) {
       ovl.setPosition(undefined);
     }
@@ -356,23 +369,69 @@ var SearchModel = {
    * @return {string} markdown
    */
   translateInfoboxTemplate: function(information, properties) {
-    (information.match(/\{.*?\}\s?/g) || []).forEach(property => {
-        function lookup(o, s) {
+    // Only detaljplaner will have these attributes and will thus allow multiple urls
+    if(!properties.hasOwnProperty("url_2") || !properties.hasOwnProperty("url_3")) {
+      if (information && typeof information === "string") {
+        (information.match(/\{.*?\}\s?/g) || []).forEach(property => {
+          function lookup(o, s)
+        {
           s = s.replace('{', '')
-               .replace('}', '')
-               .replace('export:', '')
-               .replace(/ as .*/, '')
-               .trim()
-               .split('.');
+            .replace('}', '')
+            .trim()
+            .split('.');
 
           switch (s.length) {
-            case 1: return o[s[0]] || "";
-            case 2: return o[s[0]][s[1]] || "";
-            case 3: return o[s[0]][s[1]][s[2]] || "";
+            case 1:
+              return o[s[0]] || "";
+            case 2:
+              return o[s[0]][s[1]] || "";
+            case 3:
+              return o[s[0]][s[1]][s[2]] || "";
           }
         }
         information = information.replace(property, lookup(properties, property));
-    });
+      });
+      }
+    }else {
+      //Allow multiple URLs "Detaljplaner"
+      if (information && typeof information === "string") {
+        (information.match(/\{.*?\}\s?/g) || []).forEach(property => {
+          function lookup(o, s)
+        {
+          s = s.replace('{', '')
+            .replace('}', '')
+            .trim()
+            .split('.');
+
+          switch (s.length) {
+            case 1:
+              return o[s[0]] || "";
+            case 2:
+              return o[s[0]][s[1]] || "";
+            case 3:
+              return o[s[0]][s[1]][s[2]] || "";
+          }
+        }
+        if(property.includes("{antagen}")){
+          antagen = lookup(properties, property);
+        }
+        if (property.substring(1, 4) == "url" && lookup(properties, property).length > 0) {
+          if(property.substring(5,6) == ""){
+            var val = '<tr><td> <strong>PDF-dokument</strong> </td>\n' +
+              '<td> <a href=\"' + lookup(properties, property) + '\" target=\"_blank\"> Öppna detaljplanen i nytt fönster </a> </td></tr>'
+          }else{
+            var val = '<tr><td></td>\n' +
+              '<td> <a href=\"' + lookup(properties, property) + '\" target=\"_blank\">del ' + property.substring(5, 6) + '</a> </td></tr>'
+          }
+
+          information = information.replace(property, val);
+        } else {
+          information = information.replace(property, lookup(properties, property));
+        }
+
+      });
+      }
+    }
     return information;
   },
 
@@ -447,7 +506,7 @@ var SearchModel = {
    * @param {object} spec
    *
    */
-  focus: function (spec) {
+  focus: function (spec, isBar) {
 
     function isPoint (coord) {
       if (coord.length === 1) {
@@ -477,8 +536,8 @@ var SearchModel = {
 
     this.featureLayer.getSource().clear();
     this.featureLayer.getSource().addFeature(spec.hit);
-
-    if (ovl && this.get('displayPopup')) {
+    var displayPopup = isBar ? this.get("displayPopupBar"): this.get("displayPopup");
+    if (ovl && displayPopup) {
 
       let title = $(`<div class="popup-title">${spec.hit.caption}</div>`);
       let textContent = $('<div id="popup-content-text"></div>');
@@ -765,8 +824,8 @@ var SearchModel = {
    * @param {string} value
    * @param {function} done
    */
-  search: function (done) {
-    var value = this.get('value')
+  search: function (done, isBar) {
+    var value = isBar ? this.get('valueBar') : this.get('value')
     ,   items = []
     ,   promises = []
     ,   layers
@@ -856,26 +915,34 @@ var SearchModel = {
     });
 
     Promise.all(promises).then(() => {
-      items.forEach(function (item) {
+
+        items.forEach(function (item) {
         item.hits = arraySort({
           array: item.hits,
           index: item.displayName
         });
       });
-      items = items.sort((a, b) => a.layer > b.layer ? 1 : -1);
+    items = items.sort((a, b) => a.layer > b.layer ? 1 : -1
+  )
+    ;
+    if(isBar){
+      this.set('barItems', items);
+    } else {
       this.set('items', items);
-      if (done) {
-        done({
-          status: "success",
-          items: items
-        });
-      }
+    }
+    if (done) {
+      done({
+        status: "success",
+        items: items
+      });
+    }
+
     });
   },
 
-  shouldRenderResult: function () {
+  shouldRenderResult: function (isBar) {
     return !!(
-      this.get('value') ||
+      (isBar ? this.get('valueBar') : this.get('value')) ||
       (
         this.get('selectionModel') &&
         this.get('selectionModel').hasFeatures() &&
@@ -893,7 +960,7 @@ var SearchModel = {
   getStyle: function () {
     return new ol.style.Style({
       fill: new ol.style.Fill({
-        color: 'rgba(255, 255, 255, 0.6)'
+        color: 'rgba(255, 255, 255, 0.2)'
       }),
       stroke: new ol.style.Stroke({
         color: 'rgba(0, 0, 0, 0.6)',

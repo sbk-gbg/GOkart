@@ -40,7 +40,8 @@ var MapModelProperties = {
   target: "map",
   projection: "EPSG:3007",
   ol: undefined,
-  clicked: undefined
+  clicked: undefined,
+  extent: undefined
 };
 
 /**
@@ -86,7 +87,7 @@ var MapModel = {
       pil: false,
       controls: [
         new ol.control.Zoom({ zoomInTipLabel: 'Zooma in', zoomOutTipLabel: 'Zooma ut' }),
-        new ol.control.Attribution({ collapsible: false }),
+        //new ol.control.Attribution({ collapsible: false }),
         new ol.control.Rotate({tipLabel: 'Återställ rotation'}),
         //new app.PositioningControl()
       ],
@@ -97,7 +98,8 @@ var MapModel = {
         units: 'm',
         resolutions: this.get('resolutions'),
         center: this.get("center"),
-        projection: ol.proj.get(this.get('projection'))
+        projection: ol.proj.get(this.get('projection')),
+        extent: this.get('extent').length != 0 ? this.get('extent') : undefined
       })
     });
     this.set("ol", map);
