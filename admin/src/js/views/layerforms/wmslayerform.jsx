@@ -345,7 +345,7 @@ class WMSLayerForm extends Component {
         }
         break;
       case "opacity":
-        if (!number(value) || empty(value)) {
+        if (!/^-?\d+.\d+$/.test(value)) {
           valid = false;
         }
         break;
@@ -472,10 +472,13 @@ class WMSLayerForm extends Component {
           <label>Opacitet*</label>
           <input
             type="number"
+            step="0.01"
             ref="input_opacity"
             value={this.state.opacity}
+            className={this.getValidationClass("opacity")}
             onChange={(e) => {
               this.setState({opacity: e.target.value});
+              this.validateField("opacity");
             }}
           />
         </div>
