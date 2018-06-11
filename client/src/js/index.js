@@ -133,7 +133,8 @@
     });
     return filtered;
   };
-
+/*
+  // denna funktionen verkar inte användas /Hitomi
   internal.getADSpecificSearchLayers = function () {
     $.ajax({
       url: '/mapservice/config/ADspecificSearch',
@@ -147,7 +148,7 @@
       }
     });
   };
-
+*/
   /**
    * Overrides global search configuration and uses layers specified in mapconfiguration to do a search
    */
