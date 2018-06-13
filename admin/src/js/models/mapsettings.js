@@ -121,7 +121,7 @@ var menu = Model.extend({
   fetchADGroups: function (callback) {
     if (this.get('config').authentication_active) {
       $.ajax({
-        url: '/mapservice/config/getusergroups',
+        url: this.get('config').url_getusergroups,
         method: 'GET',
         success: (data) => {
           let g = data.split(',');
