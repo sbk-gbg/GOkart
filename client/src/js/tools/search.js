@@ -48,7 +48,9 @@ var SearchModelProperties = {
   displayPopupBar: false,
   hits: [],
   popupOffsetY: 0,
-  aliasDict: {}
+  aliasDict: {},
+  showExternalResultsId: "",
+  externalResults: null
 };
 
 /**
@@ -66,27 +68,38 @@ var SearchModel = {
 
   initialize: function (options) {
     ToolModel.prototype.initialize.call(this);
+    console.log("options2");
+    console.log(options);
+    this.set("sources", options.sources);
   },
 
   configure: function (shell) {
     this.set('displayPopupBar', this.get('displayPopup'));
     this.set('layerCollection', shell.getLayerCollection());
     this.set('map', shell.getMap().getMap());
-    this.featureLayer = new ol.layer.Vector({
-      caption: 'Sökträff',
-      name: 'search-vector-layer',
-      source: new ol.source.Vector(),
-      queryable: true,
-      visible: true,
-      style: this.getStyle()
-    });
 
-    this.featureLayer.getSource().on('addfeature', evt => {
-      evt.feature.setStyle(this.featureLayer.getStyle());
-    });
+    // Check if featureLayer exists
+    var featureLayerCaption = "Sökträff";
+    var featurelayer = this.get("layerCollection").find(layer => layer.get('caption') === featureLayerCaption);
 
-    this.get('map').addLayer(this.featureLayer);
+    console.log("featureLayer");
+    console.log(featurelayer);
+    if(typeof featurelayer === "undefined") {
+        this.featureLayer = new ol.layer.Vector({
+            caption: featureLayerCaption,
+            name: 'search-vector-layer',
+            source: new ol.source.Vector(),
+            queryable: true,
+            visible: true,
+            style: this.getStyle()
+        });
 
+        this.featureLayer.getSource().on('addfeature', evt => {
+            evt.feature.setStyle(this.featureLayer.getStyle());
+        });
+
+        this.get('map').addLayer(this.featureLayer);
+    }
     if (this.get('selectionTools')) {
       this.set('selectionModel', new SelectionModel({
         map: shell.getMap().getMap(),

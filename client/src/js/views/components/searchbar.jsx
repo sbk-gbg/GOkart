@@ -65,6 +65,7 @@ var SearchBarView = {
    * @instance
    */
   componentDidMount: function () {
+    console.log("didmount");
     this.valueBar = this.props.model.get('valueBar');
     if (this.props.model.get('barItems')) {
       this.setState({
@@ -140,6 +141,9 @@ var SearchBarView = {
    * @instance
    */
   componentWillMount: function () {
+    console.log("Going to mount");
+    console.log('aaa');
+    console.log(this.props.model.get('layerCollection'));
     this.props.model.get('layerCollection')
       ? this.bindLayerVisibilityChange()
       : this.props.model.on('change:layerCollection', this.bindLayerVisibilityChange);
@@ -244,11 +248,13 @@ var SearchBarView = {
    * @instance
    */
   bindLayerVisibilityChange: function () {
+    console.log("binding");
     this.props.model.get('layerCollection').each((layer) => {
       layer.on('change:visible', () => {
         // this.update(); // causes a search to be done everytime a layer's visibility changes. Then it only searches in adresser and fastighet
       });
     });
+    console.log("binded");
   },
 
   /**
@@ -269,6 +275,8 @@ var SearchBarView = {
    * @return {external:ReactElement}
    */
   renderOptions: function () {
+    console.log("options");
+    console.log(this);
     var settings = this.props.model.get('settings'),
       sources = this.props.model.get('sources')
     ;
@@ -282,6 +290,7 @@ var SearchBarView = {
             <option value='*'>-- Alla --</option>
             {
               (() => {
+                console.log("sources");
                 return sources.map((wfslayer, i) => {
                   return (
                     <option key={i} value={wfslayer.caption}>
@@ -289,6 +298,7 @@ var SearchBarView = {
                     </option>
                   );
                 });
+                console.log("after sources");
               })()
             }
           </select>
@@ -404,10 +414,12 @@ var SearchBarView = {
    * @return {external:ReactElement}
    */
   render: function () {
+    console.log("render");
+    console.log(this);
     var valueBar = this.props.model.get('valueBar'),
       showResults = this.props.model.shouldRenderResult(true),
       options = this.renderOptions();
-
+console.log("1");
     const Loading = (
       <div id='searchbar-loading-spinner'>
         <span className='sr-only'>Laddar...</span>
@@ -416,7 +428,7 @@ var SearchBarView = {
     );
 
     const shouldRenderSearchResults = this.refs.searchInput && (this.refs.searchInput.value.length > 3 || this.props.model.get('force') && this.refs.searchInput.value.length > 0);
-
+      console.log("2");
     if (this.refs.searchInput) {
     } else {
     }
@@ -426,10 +438,10 @@ var SearchBarView = {
         Skriv minst fyra tecken för att påbörja automatisk sökning. Tryck på <b>retur</b> för att forcera en sökning.
       </p>
     );
-
+      console.log("3");
     const inputClassName = this.state.loading || (showResults && !this.state.loading && shouldRenderSearchResults) ? 'form-control searchbar-input-field-active' : 'form-control';
     const buttonClassName = this.state.loading || (showResults && !this.state.loading && shouldRenderSearchResults) ? 'input-group-addon searchbar-search-button-active' : 'input-group-addon';
-
+      console.log("4");
     return (
       <div className='search-tools'>
         <div className='input-group' id='searchbar-search-area'>

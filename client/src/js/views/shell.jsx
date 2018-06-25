@@ -28,7 +28,7 @@ var Toolcollection = require('collections/tools');
 var NavigationPanel = require('views/navigationpanel');
 var NavigationPanelModel = require('models/navigation');
 var SearchBar = require('components/searchbar');
-
+var Search = require('tools/search');
 /**
  * @class
  */
@@ -179,9 +179,13 @@ var ShellView = {
 
       var searchTool = this.model.get('toolCollection').find(tool => tool.get('type') === 'search');
       if (searchTool && searchTool.get('onMap')) {
+        var options = this.model.initialConfig.tools.find(tool => tool.type === "search");
+        var searchBarModel = new Search(options.options);
+        searchBarModel.set('shell', this.model);
+        searchBarModel.configure(this.model);
         searchbar = (
           <div className='search-bar-holder'>
-            <SearchBar model={this.model.get('toolCollection').find(tool => tool.get('type') === 'search')} />
+            <SearchBar model={searchBarModel} />
           </div>
         );
       }

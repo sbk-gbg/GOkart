@@ -19,7 +19,6 @@
 // SÄLJBARHET eller LÄMPLIGHET FÖR ETT VISST SYFTE.
 //
 // https://github.com/hajkmap/Hajk
-
 var SelectionToolbar = require('components/selectiontoolbar');
 var SearchResultGroup = require('components/searchresultgroup');
 
@@ -126,6 +125,8 @@ var SearchView = {
     if (!isMobile && typeof $('#snabbsokRensa') !== 'undefined') {
       $('#snabbsokRensa').click();
     }
+
+    ReactDOM.unmountComponentAtNode(externalResults);
 
     if (document.getElementById('alertSearchbar') != null) {
       document.getElementById('alertSearchbar').remove();
@@ -323,7 +324,7 @@ var SearchView = {
       <div className='search-results' key='search-results'>
         <h3>Sökresultat</h3>
         <div>
-          <input type='checkbox' id='display-popup' ref='displayPopup' onChange={(e) => { this.onChangeDisplayPopup(e); }} checked={this.state.displayPopup} />
+          <input type='checkbox' id='display-popup' /*ref='displayPopup'*/ onChange={(e) => { this.onChangeDisplayPopup(e); }} checked={this.state.displayPopup} />
           <label htmlFor='display-popup'>Visa information</label>
           <span className='pull-right'>{excelButton}&nbsp;{kmlButton}</span>
           <div>{downloadLink}</div>
@@ -375,8 +376,8 @@ var SearchView = {
           </p>
         );
       } else {
-        if ((this.refs.searchInput &&
-             this.refs.searchInput.value.length > 3) ||
+        if ((this.props.model.get('value') &&
+            this.props.model.get('value').length > 3) ||
              this.props.model.get('force')) {
           results = this.renderResults();
         } else {
@@ -397,7 +398,7 @@ var SearchView = {
         force: false
       });
       this.props.model.set('force', false);
-      if (this.refs.searchInput.value.length > 3) {
+      if (event.target.value.length > 3) {
         this.search();
       } else {
         this.setState({
@@ -423,6 +424,15 @@ var SearchView = {
       ? <SelectionToolbar model={this.props.model.get('selectionModel')} />
       : null;
 
+    if(this.props.model.get("showExternalResultsId") !== "" && results != null){
+      var externalResults = document.getElementById(this.props.model.get("showExternalResultsId"));
+      console.log("results");
+      console.log(results);
+      ReactDOM.render(results, externalResults);
+      //this.props.model.set("externalResults", results);
+      results = "";
+    }
+
     return (
       <div className='search-tools'>
         <div className='form-group'>
@@ -434,7 +444,7 @@ var SearchView = {
             </div>
             <input
               type='text'
-              ref='searchInput'
+              /* ref='searchInput' */
               className='form-control'
               placeholder='Ange söktext..'
               value={value}
@@ -447,7 +457,8 @@ var SearchView = {
         </div>
         <button onClick={search_on_click} type='submit' className='btn btn-primary'>Sök</button>&nbsp;
         <button onClick={this.clear} type='submit' className='btn btn-primary' id='sokRensa'>Rensa</button>
-        {results}
+
+         {results}
       </div>
     );
   }

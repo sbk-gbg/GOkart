@@ -217,6 +217,7 @@
         }
 
         if (searchTool) {
+          console.log("searchtools");
           if (searchTool.options.layers == null) {
             data.wfslayers = data.wfslayers;
             searchTool.options.sources = data.wfslayers;
