@@ -60,24 +60,6 @@ var SearchView = {
    * Triggered when the component is successfully mounted into the DOM.
    * @instance
    */
-
-  componentDidUpdate: function () {
-    console.log("componentDidUpdate");
-    console.log("results DidUpdate");
-    console.log(this.state.results);
-      if(this.props.model.get("showExternalResultsId") !== "" && this.state.results != null){
-          var externalResults = document.getElementById(this.props.model.get("showExternalResultsId"));
-          console.log("this.state.results");
-          console.log(this.state.results);
-          ReactDOM.render(this.state.results, externalResults);
-          //this.props.model.set("externalResults", results);
-          this.state.results = "";
-      }
-      console.log("showExternalResultsId");
-      console.log(this.props.model.get("showExternalResultsId"));
-  },
-
-
   componentDidMount: function () {
     this.value = this.props.model.get('value');
     if (this.props.model.get('items')) {
@@ -115,7 +97,6 @@ var SearchView = {
     this.props.model.get('layerCollection')
       ? this.bindLayerVisibilityChange()
       : this.props.model.on('change:layerCollection', this.bindLayerVisibilityChange);
-
   },
 
   /**
@@ -130,9 +111,6 @@ var SearchView = {
     this.props.model.off('change:displayPopup');
     this.props.model.off('change:url');
     this.props.model.off('change:downloading');
-
-    console.log("willunmount");
-    ReactDOM.unmountComponentAtNode(externalResults);
   },
 
   /**
@@ -148,6 +126,7 @@ var SearchView = {
       $('#snabbsokRensa').click();
     }
 
+    ReactDOM.unmountComponentAtNode(externalResults);
 
     if (document.getElementById('alertSearchbar') != null) {
       document.getElementById('alertSearchbar').remove();
@@ -388,7 +367,6 @@ var SearchView = {
       showResults = this.props.model.shouldRenderResult(false),
       options = this.renderOptions();
 
-
     if (showResults) {
       if (this.state.loading) {
         results = (
@@ -410,11 +388,7 @@ var SearchView = {
           );
         }
       }
-        this.setState({result: results});
     }
-
-    console.log("showResults -results-");
-    console.log(results);
 
     var search_on_input = (event) => {
       this.value = event.target.value;
@@ -450,7 +424,6 @@ var SearchView = {
       ? <SelectionToolbar model={this.props.model.get('selectionModel')} />
       : null;
 
-      /*
     if(this.props.model.get("showExternalResultsId") !== "" && results != null){
       var externalResults = document.getElementById(this.props.model.get("showExternalResultsId"));
       console.log("results");
@@ -458,7 +431,7 @@ var SearchView = {
       ReactDOM.render(results, externalResults);
       //this.props.model.set("externalResults", results);
       results = "";
-    } */
+    }
 
     return (
       <div className='search-tools'>
