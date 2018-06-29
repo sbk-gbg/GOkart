@@ -174,3 +174,5 @@ Temporary Items
 .apdisk
 
 proxy/lmproxy
+backend/mapservice/App_Data/layers.json
+backend/mapservice/App_Data/map_1.json
